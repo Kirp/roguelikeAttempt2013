@@ -17,7 +17,7 @@ class DungeonMaker extends Sprite
 	public var MAP_HEIGHT = 30;
 	
 	public var MapTile:Array<Array<Int>>;
-	private var TilesLoaded:Array<MapTileDisplayTiles>;
+	public var TilesLoaded:Array<MapTileDisplayTiles>;
 	private var RoomList:Array<RoomData>;
 	private var pathMaker:Point;	
 	

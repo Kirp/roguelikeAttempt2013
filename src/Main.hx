@@ -11,6 +11,10 @@ import nme.Lib;
 
 class Main extends Sprite 
 {
+	private var GM:GameManager;
+	
+	
+	
 	
 	public function new() 
 	{
@@ -25,8 +29,9 @@ class Main extends Sprite
 	private function init(e) 
 	{
 		// entry point
+		GM = new GameManager();
+		addChild(GM);
 		
-		// new to Haxe NME? please read *carefully* the readme.txt file!
 	}
 	
 	static public function main() 

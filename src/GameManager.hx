@@ -31,17 +31,46 @@ class GameManager extends Sprite
 	
 	
 	public var arrdungeonStages:Array<DungeonMaker>;
+	public var itemList:Array<MapTileDisplayItems>;
+	public var enemyList:Array<Enemy>;
 	
-
+	public var currentStage:Int = 0;
+	public var mainMech:MazinTypeHero;
+	public var schmoe:Enemy;
+	
 	public function new() 
 	{
 		super();
+		arrdungeonStages = [];
+		enemyList = [];
+		itemList = [];
 		
+		//temp code start
+		mainMech = new MazinTypeHero(5, 5);
+		var stage = new DungeonMaker(30, 20); 
+		arrdungeonStages.push(stage);
+		arrdungeonStages[currentStage].fillMapWith(1);
 		
-		Lib.current.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+		arrdungeonStages[currentStage].drawMap();
+		mainMech.draw();
+		
+		schmoe = new Enemy(10, 10);
+		schmoe.draw();
+		enemyList.push(schmoe);
+		
+		schmoe = new Enemy(5, 8);
+		schmoe.draw();
+		enemyList.push(schmoe);
+		
+		schmoe = new Enemy(10, 5);
+		schmoe.draw();
+		enemyList.push(schmoe);
+		
+		//temp code end
+		Lib.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 	}
 	
-	private function onKeyDown(e:KeyboardEvent):Void 
+	public function onKeyDown(e:KeyboardEvent):Void 
 	{
 		var keyPressed = e.keyCode;
 		var delta = new Point();
@@ -81,12 +110,23 @@ class GameManager extends Sprite
 				delta.y = 0;
 				
 			default:
+				
 		}
 		
-		trace(delta);
+		if (mainMech!=null)
+		{
+			if (isHittingEnemy(mainMech._x + delta.x, mainMech._y + delta.y))
+			{
+				
+			}else 
+				if (canMoveTo(mainMech._x + delta.x, mainMech._y + delta.y, arrdungeonStages[currentStage].TilesLoaded))
+				{
+					mainMech.move(delta.x, delta.y);
+				}
+		}
 	}
 	
-	private function canMoveTo(x:Float, y:Float, checkOnMap:Array<MapTileDisplayTiles>):Bool
+	public function canMoveTo(x:Float, y:Float, checkOnMap:Array<MapTileDisplayTiles>):Bool
 	{
 		var passable:Bool = false;
 		for (tile in checkOnMap)
@@ -99,4 +139,71 @@ class GameManager extends Sprite
 		
 		return passable;
 	}
+	
+	public function isHittingEnemy(x:Float, y:Float):Bool
+	{
+		for (schmuck in enemyList)
+		{
+			if (schmuck._x == x && schmuck._y == y)
+			{
+				regularAttackEntity(mainMech, schmuck);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public function regularAttackEntity(attacker:Hero, defender:Hero):Void
+	{
+		var attackRoll = rollDice(100);
+		if (attackRoll <= attacker.Accuracy - defender.Dodge)
+		{
+			trace(attacker.Name +" hits the " + defender.Name);
+			trace("doing " + attacker.STR * attacker.DamageCapacity + " damage");
+			defender.HitPoints -= attacker.STR * attacker.DamageCapacity;
+			if (defender.checkIfDead())
+			{
+				if (isEnemyInList(defender))
+				{
+					removeEnemyFromList(defender);
+				}
+			}
+			
+		} else trace(attacker.Name + " missed");
+	}
+	
+	public function removeEnemyFromList(enemy:Hero):Void
+	{
+		for (dead in enemyList)
+		{
+			if (dead == enemy)
+			{
+				trace(dead.Name + " was killed!");
+				var remains = new MapTileDisplayItems(dead._x, dead._y, MapTileDisplayItems.ITEM_CORPSE);
+				remains.draw();
+				itemList.push(remains);
+				dead.removeAll();
+				enemyList.remove(dead);
+			}
+		}
+    }
+
+	public function isEnemyInList(query:Hero):Bool
+	{
+		for (unit in enemyList)
+		{
+			if (unit == query)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	public function rollDice(dieSize:Int):Int
+	{
+		return Math.floor((Math.random() * (dieSize-1)) + 1);
+	}
+	
 }

@@ -12,6 +12,19 @@ class Hero
 	private var TILE_HEIGHT = 16;
 	private var MAX_INVENTORY_SLOT = 5;
 	
+	public var HitPoints:Int=1;
+	
+	public var Name:String = "Derp";
+	public var HeroismRank:Int = 0;
+	
+	//stats
+	public var STR:Int = 10;
+	
+	//combat modifiers
+	public var Accuracy:Int = 50;
+	public var Dodge:Int = 10;
+	public var DamageCapacity:Int = 1;
+	
 	public var _x:Float;
 	public var _y:Float;
 	private var face:TileSheetsGrid;
@@ -28,7 +41,7 @@ class Hero
 	public function draw():Void
 	{
 		face.x = this._x * TILE_WIDTH;
-		face.y = this._y* TILE_HEIGHT;
+		face.y = this._y * TILE_HEIGHT;
 		Lib.stage.addChild(face);
 	}
 	
@@ -36,6 +49,12 @@ class Hero
 	{
 		Lib.stage.removeChild(face);
 		draw();
+	}
+	
+	public function removeAll():Void
+	{
+		Lib.stage.removeChild(face);
+		inventory = [];
 	}
 	
 	public function move(deltax:Float, deltay:Float):Void
@@ -87,6 +106,25 @@ class Hero
 			return outBound;
 		}
 		return 0;
+	}
+	
+	public function setName(newName:String):Void
+	{
+		this.Name = newName;
+	}
+	
+	public function checkIfDead():Bool
+	{
+		if (this.HitPoints <= 0)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	public function changeFace(newMarker:Int):Void
+	{
+		face.changeTile(newMarker);
 	}
 	
 }
