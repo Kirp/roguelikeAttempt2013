@@ -54,15 +54,15 @@ class GameManager extends Sprite
 		arrdungeonStages[currentStage].drawMap();
 		mainMech.draw();
 		
-		schmoe = new Enemy(10, 10);
+		schmoe = new Enemy(10, 10, mainMech, this);
 		schmoe.draw();
 		enemyList.push(schmoe);
 		
-		schmoe = new Enemy(5, 8);
+		schmoe = new Enemy(5, 8, mainMech, this);
 		schmoe.draw();
 		enemyList.push(schmoe);
 		
-		schmoe = new Enemy(10, 5);
+		schmoe = new Enemy(10, 5, mainMech, this);
 		schmoe.draw();
 		enemyList.push(schmoe);
 		
@@ -124,6 +124,16 @@ class GameManager extends Sprite
 					mainMech.move(delta.x, delta.y);
 				}
 		}
+		giveEnemyTurn();
+		
+	}
+	
+	public function giveEnemyTurn():Void
+	{
+		for (baddie in enemyList)
+		{
+			baddie.takeTurn();
+		}
 	}
 	
 	public function canMoveTo(x:Float, y:Float, checkOnMap:Array<MapTileDisplayTiles>):Bool
@@ -166,6 +176,7 @@ class GameManager extends Sprite
 				if (isEnemyInList(defender))
 				{
 					removeEnemyFromList(defender);
+					attacker.reDraw();
 				}
 			}
 			

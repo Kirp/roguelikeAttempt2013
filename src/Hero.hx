@@ -1,5 +1,5 @@
 package ;
-import browser.display.InterpolationMethod;
+import nme.geom.Point;
 import nme.Lib;
 /**
  * ...
@@ -24,6 +24,8 @@ class Hero
 	public var Accuracy:Int = 50;
 	public var Dodge:Int = 10;
 	public var DamageCapacity:Int = 1;
+	public var Range:Int = 2;
+	public var Reach:Int = 1;
 	
 	public var _x:Float;
 	public var _y:Float;
@@ -113,6 +115,11 @@ class Hero
 		this.Name = newName;
 	}
 	
+	public function setRange(newRange:Int):Void
+	{
+		this.Range = newRange;
+	}
+	
 	public function checkIfDead():Bool
 	{
 		if (this.HitPoints <= 0)
@@ -127,4 +134,40 @@ class Hero
 		face.changeTile(newMarker);
 	}
 	
+	
+	function getSightRangePoints(center:Point, range:Int):Array<Point>
+	{
+		var pointList:Array<Point> = [];
+		var pattern = range;
+		for (y in 0...range+1)
+		{
+			
+			for (x in (pattern*-1)...pattern+1)
+			{
+				pointList.push(new Point(center.x+x, center.y+y));
+			}
+			pattern--;
+			
+		}
+		
+		//top half
+		
+		var pattern = range -1;
+		for (y in 1...range+1)
+		{
+			
+			for (x in (pattern*-1)...pattern+1)
+			{
+				pointList.push(new Point(center.x+x,center.y+y*-1));
+			}
+			pattern--;
+			
+		}
+		return pointList;
+	}
+	
+	public function rollDice(dieSize:Int):Int
+	{
+		return Math.floor((Math.random() * (dieSize-1)) + 1);
+	}
 }
