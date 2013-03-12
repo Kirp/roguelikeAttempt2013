@@ -8,9 +8,9 @@ package ;
 class MazinTypeHero extends Hero
 {
 	
-	public function new(x:Float, y:Float) 
+	public function new(x:Float, y:Float, gameMaster:GameManager) 
 	{
-		super(x, y);
+		super(x, y, gameMaster);
 		setName("Tranzor");
 	}
 	

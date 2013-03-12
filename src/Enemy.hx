@@ -20,18 +20,18 @@ class Enemy extends Hero
 	public var behavior:EnemyAIState;
 	public var currentTarget:Hero;
 	public var priorityTarget:Hero;
-	public var master:GameManager;
+	
 	
 	
 	public function new(x:Float, y:Float, mainTarget:Hero, gameMaster:GameManager) 
 	{
-		super(x, y);
-		
+		super(x, y, gameMaster);
 		setName("DudeBro");
 		behavior = sentry;
 		changeFace(2);
 		priorityTarget = mainTarget;
 		master = gameMaster;
+		face.visible = false;
 	}
 	
 	public function isAttackedBy(attacker:Hero):Void
@@ -67,6 +67,7 @@ class Enemy extends Hero
 					useMeleeAttackOnTarget(priorityTarget);
 				} else simpleMoveToTarget(priorityTarget); //use skill script here or fire range or start moving
 		}
+		checkIfSeen();
 	}
 	
 	public function simpleMoveToTarget(target:Hero):Void
@@ -121,6 +122,19 @@ class Enemy extends Hero
 			return true;
 		}
 		return false;
+	}
+	
+	public function checkIfSeen():Void
+	{
+		for (sighted in master.tilesInSight)
+		{
+			if (sighted.x == this._x && sighted.y == this._y)
+			{
+				face.visible = true;
+				return;
+			}
+		}
+		face.visible = false;
 	}
 	
 }

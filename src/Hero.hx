@@ -26,16 +26,20 @@ class Hero
 	public var DamageCapacity:Int = 1;
 	public var Range:Int = 2;
 	public var Reach:Int = 1;
-	public var SightRange:Int = 2;
+	public var SightRange:Int = 3;
 	
 	
 	public var _x:Float;
 	public var _y:Float;
 	private var face:TileSheetsGrid;
 	public var inventory:Array<Item>;
-
-	public function new(x:Float, y:Float) 
+	public var cameraOffset:Point;
+	private var master:GameManager;
+	
+	public function new(x:Float, y:Float, gameMaster:GameManager) 
 	{
+		master = gameMaster;
+		cameraOffset = new Point(0, 0);
 		inventory = [];
 		this._x = x;
 		this._y = y;
@@ -44,8 +48,8 @@ class Hero
 	
 	public function draw():Void
 	{
-		face.x = this._x * TILE_WIDTH;
-		face.y = this._y * TILE_HEIGHT;
+		face.x = (this._x * TILE_WIDTH);
+		face.y = (this._y * TILE_HEIGHT);
 		Lib.stage.addChild(face);
 	}
 	
@@ -66,8 +70,8 @@ class Hero
 		this._x += deltax;		
 		this._y += deltay;
 		
-		face.x = this._x * TILE_WIDTH;
-		face.y = this._y* TILE_HEIGHT;
+		face.x = (this._x * TILE_WIDTH);
+		face.y = (this._y* TILE_HEIGHT);
 	}
 	
 	public function addToInventory(mark:Int, nam:String):Bool

@@ -40,6 +40,9 @@ class GameManager extends Sprite
 	public var mainMech:MazinTypeHero;
 	public var schmoe:Enemy;
 	
+	public var camerax:Int = 0; //TODO: FIX THIS DAMN CAMERA
+	public var cameray:Int = 0;
+	
 	public function new() 
 	{
 		super();
@@ -47,22 +50,19 @@ class GameManager extends Sprite
 		enemyList = [];
 		itemList = [];
 		
+		
 		//temp code start
-		mainMech = new MazinTypeHero(5, 5);
-		var stage = new DungeonMaker(30, 20); 
+		mainMech = new MazinTypeHero(5, 5, this);
+		var stage = new DungeonMaker(20, 20); 
 		arrdungeonStages.push(stage);
 		arrdungeonStages[currentStage].fillMapWith(1);
 		
-		arrdungeonStages[currentStage].drawMap();
+		
+		
+		
+		arrdungeonStages[currentStage].drawMap(camerax, cameray);
 		mainMech.draw();
 		
-		schmoe = new Enemy(10, 10, mainMech, this);
-		schmoe.draw();
-		enemyList.push(schmoe);
-		
-		schmoe = new Enemy(5, 8, mainMech, this);
-		schmoe.draw();
-		enemyList.push(schmoe);
 		
 		schmoe = new Enemy(10, 5, mainMech, this);
 		schmoe.draw();
@@ -84,39 +84,55 @@ class GameManager extends Sprite
 			case numlKEY_UP:
 				delta.x = 0;
 				delta.y = -1;
-			
+				PlayerMovement(delta);
+				
 			case numlKEY_UPLEFT:
 				delta.x = -1;
 				delta.y = -1;
+				PlayerMovement(delta);
 				
 			case numlKEY_UPRIGHT:
 				delta.x = 1;
 				delta.y = -1;
+				PlayerMovement(delta);
 				
 			case numlKEY_DOWN:
 				delta.x = 0;
 				delta.y = 1;
+				PlayerMovement(delta);
 				
 			case numlKEY_DOWNLEFT:
 				delta.x = -1;
 				delta.y = 1;
+				PlayerMovement(delta);
 				
 			case numlKEY_DOWNRIGHT:
 				delta.x = 1;
 				delta.y = 1;
+				PlayerMovement(delta);
 				
 			case numlKEY_LEFT:
 				delta.x = -1;
 				delta.y = 0;
+				PlayerMovement(delta);
 				
 			case numlKEY_RIGHT:
 				delta.x = 1;
 				delta.y = 0;
-				
+				PlayerMovement(delta);
+			
+			case KEY_G:
+				camerax+=5;
+				arrdungeonStages[currentStage].drawMap(camerax, cameray);
 			default:
 				
 		}
 		
+		
+	}
+	
+	public function PlayerMovement(delta:Point):Void
+	{
 		if (mainMech!=null)
 		{
 			if (isHittingEnemy(mainMech._x + delta.x, mainMech._y + delta.y))
@@ -130,7 +146,6 @@ class GameManager extends Sprite
 		}
 		updateSeenTiles();
 		giveEnemyTurn();
-		
 	}
 	
 	public function giveEnemyTurn():Void

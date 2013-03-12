@@ -20,10 +20,15 @@ class DungeonMaker extends Sprite
 	public var TilesLoaded:Array<MapTileDisplayTiles>;
 	private var RoomList:Array<RoomData>;
 	private var pathMaker:Point;	
+	public var cameraOffsetx:Int =0;
+	public var cameraOffsety:Int = 0;
+	public var isDrawn:Bool = false;
+	
 	
 	public function new(width:Int, height:Int) 
 	{
 		super();
+		
 		MAP_WIDTH = width;
 		MAP_HEIGHT = height;
 		MapTile = [];
@@ -46,21 +51,34 @@ class DungeonMaker extends Sprite
 	}
 	
 	
-	public function drawMap():Void
+	public function drawMap(camerax:Int, cameray:Int):Void
 	{
-		for (i in 0...MapTile.length)
-		{
-			for (h in 0...MapTile[i].length)
+		cameraOffsetx = camerax;
+		cameraOffsety = cameray;
+		if (isDrawn == false)
+		{	
+			for (i in 0...MapTile.length)
 			{
-				if(MapTile[i][h] != 0) TilesLoaded.push(new MapTileDisplayTiles(h, i, MapTile[i][h]));
+				for (h in 0...MapTile[i].length)
+				{
+					if(MapTile[i][h] != 0) TilesLoaded.push(new MapTileDisplayTiles(h, i, MapTile[i][h]));
+				}
 			}
-		}
-		
-		//draw map tiles
-		for (tile in TilesLoaded)
-		{
-			tile.draw();
-		}
+			
+			//draw map tiles
+			for (tile in TilesLoaded)
+			{
+				tile.draw(cameraOffsetx, cameraOffsety);
+			}
+			
+			isDrawn = true;
+		} else 
+			{
+				for (tile in TilesLoaded)
+				{
+					tile.draw(cameraOffsetx, cameraOffsety);
+				}
+			}
 	}
 	
 	public function addRandomTile(tile:Int):Void

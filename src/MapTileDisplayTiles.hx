@@ -1,5 +1,6 @@
 package ;
 import nme.display.Sprite;
+import nme.geom.Point;
 import nme.Lib;
 /**
  * ...
@@ -24,11 +25,14 @@ class MapTileDisplayTiles
 	public var isPassable:Bool = false;
 	public var isVisible:Bool = false;
 	public var isDiscovered:Bool = false;
-
+	public var isDrawn:Bool = false;
+	public var cameraOffsetx:Int = 0;
+	public var cameraOffsety:Int = 0;
+	
 	public function new(_x:Float, _y:Float, marker:Int) 
 	{
-		this._x = _x;
-		this._y = _y;
+		this._x = _x + cameraOffsetx;
+		this._y = _y + cameraOffsety;
 		
 		this.marker = marker;
 		init();
@@ -66,13 +70,24 @@ class MapTileDisplayTiles
 		}
 	}
 	
-	public function draw():Void
+	public function draw(camerax:Int, cameray:Int):Void
 	{
-		face.visible = isDiscovered;
-		face.x = (this._x) * TileSheetsGrid.TILE_WIDTH;
-		face.y = (this._y) * TileSheetsGrid.TILE_HEIGHT;
-		face.changeCoverAlpha(0.6);
-		Lib.stage.addChild(face);
+		cameraOffsetx = camerax;
+		cameraOffsety = cameray;
+		if (isDrawn == false)
+		{
+			
+			face.visible = isDiscovered;
+			face.x = (this._x) * TileSheetsGrid.TILE_WIDTH +cameraOffsetx;
+			face.y = (this._y) * TileSheetsGrid.TILE_HEIGHT + cameraOffsety;
+			face.changeCoverAlpha(0.6);
+			Lib.stage.addChild(face);
+			isDrawn = true;
+		} else 
+			{
+				face.x = (this._x) * TileSheetsGrid.TILE_WIDTH +cameraOffsetx;
+				face.y = (this._y) * TileSheetsGrid.TILE_HEIGHT + cameraOffsety;
+			}
 	}
 	
 	public function reveal():Void
