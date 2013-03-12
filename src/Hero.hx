@@ -26,6 +26,8 @@ class Hero
 	public var DamageCapacity:Int = 1;
 	public var Range:Int = 2;
 	public var Reach:Int = 1;
+	public var SightRange:Int = 2;
+	
 	
 	public var _x:Float;
 	public var _y:Float;
@@ -135,7 +137,7 @@ class Hero
 	}
 	
 	
-	function getSightRangePoints(center:Point, range:Int):Array<Point>
+	public function getSightRangePoints(center:Point, range:Int):Array<Point>
 	{
 		var pointList:Array<Point> = [];
 		var pattern = range;
@@ -165,6 +167,7 @@ class Hero
 		}
 		return pointList;
 	}
+	
 	
 	public function rollDice(dieSize:Int):Int
 	{

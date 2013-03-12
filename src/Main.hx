@@ -31,7 +31,7 @@ class Main extends Sprite
 	{
 		// entry point
 		GM = new GameManager();
-		addChild(GM);
+		//addChild(GM);
 		
 	}
 	

@@ -34,6 +34,8 @@ class GameManager extends Sprite
 	public var itemList:Array<MapTileDisplayItems>;
 	public var enemyList:Array<Enemy>;
 	
+	public var tilesInSight:Array<Point>;
+	
 	public var currentStage:Int = 0;
 	public var mainMech:MazinTypeHero;
 	public var schmoe:Enemy;
@@ -65,6 +67,8 @@ class GameManager extends Sprite
 		schmoe = new Enemy(10, 5, mainMech, this);
 		schmoe.draw();
 		enemyList.push(schmoe);
+		
+		updateSeenTiles();
 		
 		//temp code end
 		Lib.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
@@ -124,6 +128,7 @@ class GameManager extends Sprite
 					mainMech.move(delta.x, delta.y);
 				}
 		}
+		updateSeenTiles();
 		giveEnemyTurn();
 		
 	}
@@ -211,10 +216,71 @@ class GameManager extends Sprite
 		return false;
 	}
 	
+	public function isTileInList(seek:MapTileDisplayTiles):Bool
+	{
+		for (tile in arrdungeonStages[currentStage].TilesLoaded)
+		{
+			if (tile._x == seek._x && tile._y == seek._y)
+			return true;
+		}
+		return false;
+	}
+	
+	public function getTileByPoint(XY:Point):MapTileDisplayTiles
+	{
+		for (tile in arrdungeonStages[currentStage].TilesLoaded)
+		{
+			if (tile._x == XY.x && tile._y == XY.y)
+			{
+				return tile;
+			}
+		}
+		return null;
+	}
+	
 	
 	public function rollDice(dieSize:Int):Int
 	{
 		return Math.floor((Math.random() * (dieSize-1)) + 1);
 	}
+	
+	public function updateSeenTiles():Void
+	{
+		if (tilesInSight == null)
+		{
+			tilesInSight = mainMech.getSightRangePoints(new Point(mainMech._x, mainMech._y), mainMech.SightRange);
+			for (sighted in tilesInSight)
+			{
+				var isThere:MapTileDisplayTiles = getTileByPoint(sighted);
+				if (isThere != null)
+				{
+					isThere.reveal();
+				}	
+			}
+		} else
+			{
+				for (sighted in tilesInSight)
+				{
+					var isThere:MapTileDisplayTiles = getTileByPoint(sighted);
+					if (isThere != null)
+					{
+						isThere.outOfSight();
+					}	
+				}
+				
+				tilesInSight = mainMech.getSightRangePoints(new Point(mainMech._x, mainMech._y), mainMech.SightRange);
+				for (sighted in tilesInSight)
+				{
+					var isThere:MapTileDisplayTiles = getTileByPoint(sighted);
+					if (isThere != null)
+					{
+						isThere.reveal();
+					}	
+				}
+				
+				
+			}
+	}
+	
 	
 }

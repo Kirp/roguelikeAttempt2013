@@ -22,6 +22,8 @@ class MapTileDisplayTiles
 	public var _x:Float;
 	public var _y:Float;
 	public var isPassable:Bool = false;
+	public var isVisible:Bool = false;
+	public var isDiscovered:Bool = false;
 
 	public function new(_x:Float, _y:Float, marker:Int) 
 	{
@@ -30,6 +32,7 @@ class MapTileDisplayTiles
 		
 		this.marker = marker;
 		init();
+		face.visible = isDiscovered;
 	}
 	
 	public function init() 
@@ -65,11 +68,25 @@ class MapTileDisplayTiles
 	
 	public function draw():Void
 	{
+		face.visible = isDiscovered;
 		face.x = (this._x) * TileSheetsGrid.TILE_WIDTH;
 		face.y = (this._y) * TileSheetsGrid.TILE_HEIGHT;
+		face.changeCoverAlpha(0.6);
 		Lib.stage.addChild(face);
-		
-		
+	}
+	
+	public function reveal():Void
+	{
+		isDiscovered = true;
+		face.visible = isDiscovered;
+		isVisible = true;
+		face.changeCoverAlpha(0);
+	}
+	
+	public function outOfSight():Void
+	{
+		isVisible = false;
+		face.changeCoverAlpha(0.6);
 	}
 	
 	public function changeTile(newMarker:Int):Void
