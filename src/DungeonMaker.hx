@@ -18,7 +18,7 @@ class DungeonMaker extends Sprite
 	
 	public var MapTile:Array<Array<Int>>;
 	public var TilesLoaded:Array<MapTileDisplayTiles>;
-	private var RoomList:Array<RoomData>;
+	public var RoomList:Array<RoomData>;
 	private var pathMaker:Point;	
 	public var cameraOffsetx:Int =0;
 	public var cameraOffsety:Int = 0;
@@ -129,6 +129,16 @@ class DungeonMaker extends Sprite
 							MapTile[diceRolly + y][diceRollx + x] = tile;
 						}
 					}
+					
+					for (y in 1...heiRoll)
+					{
+						for (x in 1...lenRoll)
+						{
+							MapTile[diceRolly + y][diceRollx + x] = 1;
+						}
+					}
+					
+					
 					RoomList.push(new RoomData(diceRollx, diceRolly, lenRoll, heiRoll));
 					goodRect = true;
 				}

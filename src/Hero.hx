@@ -31,25 +31,26 @@ class Hero
 	
 	public var _x:Float;
 	public var _y:Float;
-	private var face:TileSheetsGrid;
+	public var face:TileSheetsGrid;
 	public var inventory:Array<Item>;
-	public var cameraOffset:Point;
+	
 	private var master:GameManager;
 	
 	public function new(x:Float, y:Float, gameMaster:GameManager) 
 	{
 		master = gameMaster;
-		cameraOffset = new Point(0, 0);
 		inventory = [];
 		this._x = x;
 		this._y = y;
 		face = new TileSheetsGrid(65);
+		face.x = _x * TILE_WIDTH;
+		face.y = _y * TILE_HEIGHT;
 	}
 	
 	public function draw():Void
 	{
-		face.x = (this._x * TILE_WIDTH);
-		face.y = (this._y * TILE_HEIGHT);
+		face.x = (this._x) * TILE_WIDTH + master.camerax;
+		face.y = (this._y) * TILE_HEIGHT + master.cameray;
 		Lib.stage.addChild(face);
 	}
 	
@@ -70,8 +71,8 @@ class Hero
 		this._x += deltax;		
 		this._y += deltay;
 		
-		face.x = (this._x * TILE_WIDTH);
-		face.y = (this._y* TILE_HEIGHT);
+		face.x = (this._x) * TILE_WIDTH + master.camerax;
+		face.y = (this._y) * TILE_HEIGHT + master.cameray;
 	}
 	
 	public function addToInventory(mark:Int, nam:String):Bool
@@ -176,5 +177,11 @@ class Hero
 	public function rollDice(dieSize:Int):Int
 	{
 		return Math.floor((Math.random() * (dieSize-1)) + 1);
+	}
+	
+	public function offSetForCamera():Void
+	{
+		face.x = (this._x) * TILE_WIDTH + master.camerax;
+		face.y = (this._y) * TILE_HEIGHT + master.cameray;
 	}
 }

@@ -24,7 +24,10 @@ class MapTileDisplayItems
 	public var _x:Float;
 	public var _y:Float;
 	public var name:String;
-
+	public var cameraOffsetx:Int;
+	public var cameraOffsety:Int;
+	public var isDrawn:Bool = false;
+	
 	public function new(_x:Float, _y:Float, marker:Int) 
 	{
 		this._x = _x;
@@ -126,14 +129,24 @@ class MapTileDisplayItems
 		}
 	}
 	
-	public function draw():Void
+	public function draw(camerax:Int, cameray:Int):Void
 	{
-		if (face!=null)
-		{
-		face.x = (this._x) * TileSheetsGrid.TILE_WIDTH;
-		face.y = (this._y) * TileSheetsGrid.TILE_HEIGHT;
-		Lib.current.stage.addChild(face);
-		}
+		cameraOffsetx = camerax;
+		cameraOffsety = cameray;
+		if (isDrawn == false)
+		{	
+			
+			if (face!=null)
+			{
+			face.x = (this._x) * TileSheetsGrid.TILE_WIDTH + cameraOffsetx;
+			face.y = (this._y) * TileSheetsGrid.TILE_HEIGHT + cameraOffsety;
+			Lib.current.stage.addChild(face);
+			}
+		} else
+			{
+				face.x = (this._x) * TileSheetsGrid.TILE_WIDTH + cameraOffsetx;
+				face.y = (this._y) * TileSheetsGrid.TILE_HEIGHT + cameraOffsety;
+			}
 	}
 	
 	public function erase():Void

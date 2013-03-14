@@ -13,6 +13,9 @@ import nme.Lib;
 
 class GameManager extends Sprite
 {	
+	inline private static var TILE_WIDTH = 16;
+	inline private static var TILE_HEIGHT = 16;
+	
 	inline private static var numlKEY_UP = 104;
 	inline private static var numlKEY_UPLEFT = 103;
 	inline private static var numlKEY_UPRIGHT = 105;
@@ -52,24 +55,28 @@ class GameManager extends Sprite
 		
 		
 		//temp code start
-		mainMech = new MazinTypeHero(5, 5, this);
-		var stage = new DungeonMaker(20, 20); 
+		mainMech = new MazinTypeHero(25, 15, this);
+		var stage = new DungeonMaker(50, 50); 
 		arrdungeonStages.push(stage);
-		arrdungeonStages[currentStage].fillMapWith(1);
+		arrdungeonStages[currentStage].fillMapWith(0);
 		
-		
-		
+		arrdungeonStages[currentStage].addRandomRectangle(2 , 10, 10);
+		arrdungeonStages[currentStage].addRandomRectangle(2 , 10, 10);
+		arrdungeonStages[currentStage].addRandomRectangle(2 , 10, 10);
+		arrdungeonStages[currentStage].connectAllRooms();
 		
 		arrdungeonStages[currentStage].drawMap(camerax, cameray);
+		
+		mainMech = new MazinTypeHero(arrdungeonStages[currentStage].RoomList[0].centerX, arrdungeonStages[currentStage].RoomList[0].centerY, this);
+		
 		mainMech.draw();
-		
-		
 		schmoe = new Enemy(10, 5, mainMech, this);
 		schmoe.draw();
 		enemyList.push(schmoe);
 		
 		updateSeenTiles();
 		
+		centerCamera();
 		//temp code end
 		Lib.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 	}
@@ -124,11 +131,25 @@ class GameManager extends Sprite
 			case KEY_G:
 				camerax+=5;
 				arrdungeonStages[currentStage].drawMap(camerax, cameray);
+				//mainMech.offSetForCamera();
+				mainMech.reDraw();
+				for (derp in enemyList)
+				{
+					derp.reDraw();
+				}
+				
 			default:
 				
 		}
 		
 		
+		trace("camera X:Y = " + camerax + ":" + cameray);
+		trace("player icon= " + mainMech.face.x + ":"+mainMech.face.y);
+		var diffx = mainMech.face.x - camerax;
+		var diffy = mainMech.face.y - cameray;
+		trace(diffx + ":" + diffy);
+		
+		checkIfNeedToCenterPlayer();
 	}
 	
 	public function PlayerMovement(delta:Point):Void
@@ -146,6 +167,66 @@ class GameManager extends Sprite
 		}
 		updateSeenTiles();
 		giveEnemyTurn();
+	}
+	
+	public function centerCamera():Void
+	{
+		camerax = Std.int(-mainMech.face.x/2);
+		cameray = Std.int(-mainMech.face.y/2);
+		arrdungeonStages[currentStage].drawMap(camerax, cameray);
+				for (item in itemList)
+				{
+					item.draw(camerax, cameray);
+				}
+				mainMech.reDraw();
+				for (derp in enemyList)
+				{
+					derp.reDraw();
+				}
+	}
+	
+	public function checkIfNeedToCenterPlayer():Void
+	{
+		var redraw:Bool = false;
+		if (mainMech.face.x< 128)
+		{
+			camerax+=TILE_WIDTH;
+			redraw = true;
+		}
+		
+		if (mainMech.face.x > 640)
+		{
+			camerax-=TILE_WIDTH;
+			redraw = true;
+		}
+		
+		if (mainMech.face.y < 128)
+		{
+			cameray += TILE_HEIGHT;
+			redraw = true;
+		}
+		
+		if (mainMech.face.y > 272)
+		{
+			cameray -= TILE_HEIGHT;
+			redraw = true;
+		}
+		
+		if (redraw)
+		{
+				arrdungeonStages[currentStage].drawMap(camerax, cameray);
+				for (item in itemList)
+				{
+					item.draw(camerax, cameray);
+				}
+				mainMech.reDraw();
+				for (derp in enemyList)
+				{
+					derp.reDraw();
+				}
+		}
+		
+		
 	}
 	
 	public function giveEnemyTurn():Void
@@ -211,7 +292,7 @@ class GameManager extends Sprite
 			{
 				trace(dead.Name + " was killed!");
 				var remains = new MapTileDisplayItems(dead._x, dead._y, MapTileDisplayItems.ITEM_CORPSE);
-				remains.draw();
+				remains.draw(camerax, cameray);
 				itemList.push(remains);
 				dead.removeAll();
 				enemyList.remove(dead);
