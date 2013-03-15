@@ -12,8 +12,8 @@ class Hero
 	private var TILE_HEIGHT = 16;
 	private var MAX_INVENTORY_SLOT = 5;
 	
-	public var HitPoints:Int=1;
-	
+	public var HitPoints:Int= 100;
+	public var Energy:Int = 100;
 	public var Name:String = "Derp";
 	public var HeroismRank:Int = 0;
 	

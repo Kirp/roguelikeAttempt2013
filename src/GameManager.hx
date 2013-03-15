@@ -43,6 +43,11 @@ class GameManager extends Sprite
 	public var mainMech:MazinTypeHero;
 	public var schmoe:Enemy;
 	
+	
+	public var HUDHp:FeedBackDisplay;
+	public var HUDEn:FeedBackDisplay;
+	public var reportFeed:MultiTextDisplay;
+	
 	public var camerax:Int = 0; //TODO: FIX THIS DAMN CAMERA
 	public var cameray:Int = 0;
 	
@@ -54,9 +59,18 @@ class GameManager extends Sprite
 		itemList = [];
 		
 		
+		
 		//temp code start
 		mainMech = new MazinTypeHero(25, 15, this);
 		var stage = new DungeonMaker(50, 50); 
+		
+		HUDHp = new FeedBackDisplay(10, 1);
+		HUDEn = new FeedBackDisplay(10, 10);
+		reportFeed = new MultiTextDisplay(50, 300);
+		
+		
+		reportFeed.sayThis("Welcome to the game.");
+		
 		arrdungeonStages.push(stage);
 		arrdungeonStages[currentStage].fillMapWith(0);
 		
@@ -70,12 +84,16 @@ class GameManager extends Sprite
 		mainMech = new MazinTypeHero(arrdungeonStages[currentStage].RoomList[0].centerX, arrdungeonStages[currentStage].RoomList[0].centerY, this);
 		
 		mainMech.draw();
-		schmoe = new Enemy(10, 5, mainMech, this);
+		
+		var schmoe = new Enemy(arrdungeonStages[currentStage].RoomList[1].centerX, arrdungeonStages[currentStage].RoomList[1].centerY, mainMech, this);
 		schmoe.draw();
 		enemyList.push(schmoe);
 		
+		
 		updateSeenTiles();
 		
+		
+		redrawHUD();
 		centerCamera();
 		//temp code end
 		Lib.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
@@ -130,26 +148,28 @@ class GameManager extends Sprite
 			
 			case KEY_G:
 				camerax+=5;
-				arrdungeonStages[currentStage].drawMap(camerax, cameray);
-				//mainMech.offSetForCamera();
-				mainMech.reDraw();
-				for (derp in enemyList)
-				{
-					derp.reDraw();
-				}
+				reDrawAll();
 				
 			default:
 				
 		}
-		
-		
-		trace("camera X:Y = " + camerax + ":" + cameray);
-		trace("player icon= " + mainMech.face.x + ":"+mainMech.face.y);
-		var diffx = mainMech.face.x - camerax;
-		var diffy = mainMech.face.y - cameray;
-		trace(diffx + ":" + diffy);
-		
+		updatePlayerStatus();
 		checkIfNeedToCenterPlayer();
+	}
+	
+	public function redrawHUD():Void
+	{
+		HUDHp.sayThis("HP :"+Std.string(mainMech.HitPoints));
+		HUDHp.draw();
+		HUDEn.sayThis("EN :" + Std.string(mainMech.Energy));
+		HUDEn.draw();
+		reportFeed.draw();
+	}
+	
+	public function updatePlayerStatus():Void
+	{
+		HUDHp.sayThis("HP :" + Std.string(mainMech.HitPoints));
+		HUDEn.sayThis("EN :" + Std.string(mainMech.Energy));
 	}
 	
 	public function PlayerMovement(delta:Point):Void
@@ -169,20 +189,27 @@ class GameManager extends Sprite
 		giveEnemyTurn();
 	}
 	
+	public function reDrawAll():Void
+	{
+		
+		arrdungeonStages[currentStage].drawMap(camerax, cameray);
+		for (item in itemList)
+		{
+			item.draw(camerax, cameray);
+		}
+		mainMech.reDraw();
+		for (derp in enemyList)
+		{
+			derp.reDraw();
+		}
+		redrawHUD();
+	}
+	
 	public function centerCamera():Void
 	{
-		camerax = Std.int(-mainMech.face.x/2);
-		cameray = Std.int(-mainMech.face.y/2);
-		arrdungeonStages[currentStage].drawMap(camerax, cameray);
-				for (item in itemList)
-				{
-					item.draw(camerax, cameray);
-				}
-				mainMech.reDraw();
-				for (derp in enemyList)
-				{
-					derp.reDraw();
-				}
+		camerax = Std.int(-mainMech.face.x +128);
+		cameray = Std.int(-mainMech.face.y +128);
+		reDrawAll();
 	}
 	
 	public function checkIfNeedToCenterPlayer():Void
@@ -271,6 +298,7 @@ class GameManager extends Sprite
 		{
 			trace(attacker.Name +" hits the " + defender.Name);
 			trace("doing " + attacker.STR * attacker.DamageCapacity + " damage");
+			reportFeed.sayThis(attacker.Name +" hits the " + defender.Name+"doing " + attacker.STR * attacker.DamageCapacity + " damage");
 			defender.HitPoints -= attacker.STR * attacker.DamageCapacity;
 			if (defender.checkIfDead())
 			{
@@ -281,7 +309,11 @@ class GameManager extends Sprite
 				}
 			}
 			
-		} else trace(attacker.Name + " missed");
+		} else 
+			{
+				trace(attacker.Name + " missed");
+				reportFeed.sayThis(attacker.Name + " missed");
+			}
 	}
 	
 	public function removeEnemyFromList(enemy:Hero):Void
@@ -291,6 +323,7 @@ class GameManager extends Sprite
 			if (dead == enemy)
 			{
 				trace(dead.Name + " was killed!");
+				reportFeed.sayThis(dead.Name + " was killed!");
 				var remains = new MapTileDisplayItems(dead._x, dead._y, MapTileDisplayItems.ITEM_CORPSE);
 				remains.draw(camerax, cameray);
 				itemList.push(remains);

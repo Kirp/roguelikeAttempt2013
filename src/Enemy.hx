@@ -1,4 +1,5 @@
 package ;
+import native.display.DisplayObjectContainer;
 import nme.geom.Point;
 
 
@@ -20,7 +21,7 @@ class Enemy extends Hero
 	public var behavior:EnemyAIState;
 	public var currentTarget:Hero;
 	public var priorityTarget:Hero;
-	
+	private var isReported:Bool = false;
 	
 	
 	public function new(x:Float, y:Float, mainTarget:Hero, gameMaster:GameManager) 
@@ -74,13 +75,33 @@ class Enemy extends Hero
 	{
 		var diffx = target._x - this._x;
 		var diffy = target._y - this._y;
-		var delta = new Point((diffx < 0? -1:1), (diffy < 0? -1:1));
+		var delta = new Point((diffx < 0? -1:diffx>0? 1:0), (diffy < 0? -1:diffy>0?1:0));
 		if (master.canMoveTo(this._x + delta.x, this._y + delta.y, master.arrdungeonStages[master.currentStage].TilesLoaded))
 		{
 			move(delta.x, delta.y);
 		}else trace(this.Name + " cannot move");
 		
 	}
+	
+	public function simpleMoveToTargetB(target:Hero):Void
+	{
+		var finalPoint = new Point(0, 0);
+		var currentScore:Float;
+		for (y in -1...2)
+		{
+			for (x in -1...2)
+			{
+				var diffx = target._x - this._x;
+				var diffy = target._y - this._y;
+				var score = (diffx < 0? diffx * -diffx:diffx) + (diffy < 0? diffy * -diffy:diffy);
+				
+			}
+		}
+		
+		
+	}
+	
+	
 	
 	public function checkIfTargetWithinMelee():Bool
 	{
@@ -106,10 +127,17 @@ class Enemy extends Hero
 		{
 			trace(this.Name +" hits the " + Target.Name);
 			trace("doing " + this.STR * this.DamageCapacity + " damage");
+			
+			master.reportFeed.sayThis(this.Name +" hits the " + Target.Name + "doing " + this.STR * this.DamageCapacity + " damage");
+			
 			Target.HitPoints -= this.STR * this.DamageCapacity;
 			
 			
-		} else trace(this.Name + " missed");		
+		} else 
+			{
+				trace(this.Name + " missed");	
+				master.reportFeed.sayThis(this.Name + " missed");
+			}
 	}
 	
 	
@@ -131,10 +159,16 @@ class Enemy extends Hero
 			if (sighted.x == this._x && sighted.y == this._y)
 			{
 				face.visible = true;
+				if (isReported == false) 
+				{
+					master.reportFeed.sayThis("You see a " + this.Name);
+					isReported = true;
+				}
 				return;
 			}
 		}
 		face.visible = false;
+		isReported = false;
 	}
 	
 }
