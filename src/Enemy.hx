@@ -62,11 +62,18 @@ class Enemy extends Hero
 			case PatrolY:
 				
 			case engage:
-				//place skill script here, if there are no skill attacks then
-				if (checkIfTargetWithinMelee())
+				if (isRangeUnit)
 				{
-					useMeleeAttackOnTarget(priorityTarget);
-				} else simpleMoveToTarget(priorityTarget); //use skill script here or fire range or start moving
+					if (checkIfTargetWithinRange())
+					{
+						//use range attack
+						useRangeAttackOnTarget(priorityTarget);
+					} else simpleMoveToTargetB(priorityTarget);
+					
+				}else if (checkIfTargetWithinMelee())
+					{
+						useMeleeAttackOnTarget(priorityTarget);
+					} else simpleMoveToTargetB(priorityTarget); //use skill script here or fire range or start moving
 		}
 		checkIfSeen();
 	}
@@ -85,22 +92,37 @@ class Enemy extends Hero
 	
 	public function simpleMoveToTargetB(target:Hero):Void
 	{
-		var finalPoint = new Point(0, 0);
-		var currentScore:Float;
+		var rankSquares:Array<SimpleNode> = [];
 		for (y in -1...2)
 		{
 			for (x in -1...2)
 			{
-				var diffx = target._x - this._x;
-				var diffy = target._y - this._y;
-				var score = (diffx < 0? diffx * -diffx:diffx) + (diffy < 0? diffy * -diffy:diffy);
-				
+				if (this._x + x > 0 && this._x + x < master.arrdungeonStages[master.currentStage].MAP_WIDTH &&
+					this._y + y > 0 && this._y + y < master.arrdungeonStages[master.currentStage].MAP_HEIGHT &&
+					master.arrdungeonStages[master.currentStage].MapTile[Std.int(this._y + y)][Std.int(this._x + x)] == 1)
+					{
+						rankSquares.push(new SimpleNode(this._x+x, this._y+y, x, y, this, priorityTarget));
+					}
 			}
 		}
 		
+		rankSquares.sort(function(a:SimpleNode, b:SimpleNode) { 
+					if (a.Score == b.Score) return 0;
+					if (a.Score < b.Score) return 1;
+					else return -1;
+					});
+		for (item in rankSquares)
+		{
+			trace(item.Score);
+		}
+		var bestSquare = rankSquares.pop();
+		
+		if (master.canMoveTo(bestSquare._x, bestSquare._y, master.arrdungeonStages[master.currentStage].TilesLoaded))
+		{
+			move(bestSquare.deltax, bestSquare.deltay);
+		} else trace("cannot reach target");
 		
 	}
-	
 	
 	
 	public function checkIfTargetWithinMelee():Bool
@@ -116,8 +138,36 @@ class Enemy extends Hero
 			}
 		}
 		return false;
+	}
+	
+	public function checkIfTargetWithinRange():Bool
+	{
+		var diffx = priorityTarget._x - this._x;
+		var diffy = priorityTarget._y - this._y;
+		var rangeTotal = (diffx<0?diffx*-1:diffx) + (diffy<0?diffy*-1:diffy);
+		if (rangeTotal <= Range) 
+		{
+			
+			return true;
+		}
 		
-		
+		return false;
+	}
+	
+	public function useRangeAttackOnTarget(Target:Hero):Void
+	{
+		var attackRoll = rollDice(100);
+		if (attackRoll <= this.Accuracy - Target.Dodge)
+		{
+			master.reportFeed.sayThis(this.Name +" shoots " + Target.Name + " doing " + this.STR * this.DamageCapacity + " damage");
+			
+			Target.HitPoints -= this.STR * this.DamageCapacity;
+			
+			
+		} else 
+			{	
+				master.reportFeed.sayThis(this.Name + " missed the shot");
+			}
 	}
 	
 	public function useMeleeAttackOnTarget(Target:Hero):Void
@@ -128,7 +178,7 @@ class Enemy extends Hero
 			trace(this.Name +" hits the " + Target.Name);
 			trace("doing " + this.STR * this.DamageCapacity + " damage");
 			
-			master.reportFeed.sayThis(this.Name +" hits the " + Target.Name + "doing " + this.STR * this.DamageCapacity + " damage");
+			master.reportFeed.sayThis(this.Name +" hits the " + Target.Name + " doing " + this.STR * this.DamageCapacity + " damage");
 			
 			Target.HitPoints -= this.STR * this.DamageCapacity;
 			

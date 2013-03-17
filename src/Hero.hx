@@ -16,9 +16,17 @@ class Hero
 	public var Energy:Int = 100;
 	public var Name:String = "Derp";
 	public var HeroismRank:Int = 0;
+	public var SkillSet:Array<SpecialMove>;
 	
 	//stats
 	public var STR:Int = 10;
+	public var HPRegenRate:Int = 1;
+	public var ENRegenRate:Int = 5;
+	public var MaxHP:Int = 100;
+	public var MaxEN:Int = 100;
+	public var tickPerRegen:Int = 5;
+	public var tickCounter:Int = 0;
+	
 	
 	//combat modifiers
 	public var Accuracy:Int = 50;
@@ -26,8 +34,8 @@ class Hero
 	public var DamageCapacity:Int = 1;
 	public var Range:Int = 2;
 	public var Reach:Int = 1;
-	public var SightRange:Int = 3;
-	
+	public var SightRange:Int = 5;
+	public var isRangeUnit:Bool = true;
 	
 	public var _x:Float;
 	public var _y:Float;
@@ -40,6 +48,7 @@ class Hero
 	{
 		master = gameMaster;
 		inventory = [];
+		SkillSet = [];
 		this._x = x;
 		this._y = y;
 		face = new TileSheetsGrid(65);
@@ -85,14 +94,7 @@ class Hero
 		
 		return false;
 	}
-	
-	public function traceInventory():Void
-	{
-		for (thing in inventory)
-		{
-			trace("Marker :" + thing.marker + " Name :" + thing.name);
-		}
-	}
+
 	
 	public function dropInventoryItem(drop:Int):Int
 	{

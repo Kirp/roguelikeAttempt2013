@@ -28,14 +28,15 @@ class GameManager extends Sprite
 	inline private static var KEY_G = 71;
 	inline private static var KEY_O = 79;
 	inline private static var KEY_D = 68;
-	inline private static var Key_C = 67;
-	inline private static var Key_U = 85;
-	
+	inline private static var KEY_C = 67;
+	inline private static var KEY_U = 85;
+	inline private static var KEY_S = 83;
 	
 	
 	public var arrdungeonStages:Array<DungeonMaker>;
 	public var itemList:Array<MapTileDisplayItems>;
 	public var enemyList:Array<Enemy>;
+	public var temporaryItems:Array<MapTileDisplayItems>;
 	
 	public var tilesInSight:Array<Point>;
 	
@@ -47,9 +48,13 @@ class GameManager extends Sprite
 	public var HUDHp:FeedBackDisplay;
 	public var HUDEn:FeedBackDisplay;
 	public var reportFeed:MultiTextDisplay;
+	public var okToMove:Bool = true;
+	public var useSkill:Bool = false;
+	public var wait:Bool = false;
 	
 	public var camerax:Int = 0; //TODO: FIX THIS DAMN CAMERA
 	public var cameray:Int = 0;
+	
 	
 	public function new() 
 	{
@@ -57,7 +62,7 @@ class GameManager extends Sprite
 		arrdungeonStages = [];
 		enemyList = [];
 		itemList = [];
-		
+		temporaryItems = [];
 		
 		
 		//temp code start
@@ -74,18 +79,44 @@ class GameManager extends Sprite
 		arrdungeonStages.push(stage);
 		arrdungeonStages[currentStage].fillMapWith(0);
 		
-		arrdungeonStages[currentStage].addRandomRectangle(2 , 10, 10);
-		arrdungeonStages[currentStage].addRandomRectangle(2 , 10, 10);
-		arrdungeonStages[currentStage].addRandomRectangle(2 , 10, 10);
+		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
+		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
+		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
+		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
+		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
+		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
+		
 		arrdungeonStages[currentStage].connectAllRooms();
 		
 		arrdungeonStages[currentStage].drawMap(camerax, cameray);
 		
 		mainMech = new MazinTypeHero(arrdungeonStages[currentStage].RoomList[0].centerX, arrdungeonStages[currentStage].RoomList[0].centerY, this);
-		
 		mainMech.draw();
 		
+		//adding skills
+		var iceBeam:SpecialMoveLineBlast = new SpecialMoveLineBlast("Ice Beam", 40, 50, mainMech, this, 5);
+		mainMech.SkillSet.push(iceBeam);
+		
+		var rocketPunch = new SpecialMoveMissile("Rocket Punch", 5, 25, mainMech, this, 10);
+		mainMech.SkillSet.push(rocketPunch);
+		
+		var breastFire = new SpecialMoveConeBlast("Breast Fire", 5, 40, mainMech, this, 4);
+		mainMech.SkillSet.push(breastFire);
+		
+		var fireBlaster = new SpecialMoveFatLineBlast("Fire Blaster", 5 , 50, mainMech, this, 5);
+		mainMech.SkillSet.push(fireBlaster);
+		
 		var schmoe = new Enemy(arrdungeonStages[currentStage].RoomList[1].centerX, arrdungeonStages[currentStage].RoomList[1].centerY, mainMech, this);
+		schmoe.draw();
+		enemyList.push(schmoe);
+		
+		var schmoe = new Enemy(arrdungeonStages[currentStage].RoomList[2].centerX, arrdungeonStages[currentStage].RoomList[2].centerY, mainMech, this);
+		schmoe.isRangeUnit = false;
+		schmoe.draw();
+		enemyList.push(schmoe);
+		
+		var schmoe = new Enemy(arrdungeonStages[currentStage].RoomList[3].centerX, arrdungeonStages[currentStage].RoomList[3].centerY, mainMech, this);
+		schmoe.isRangeUnit = false;
 		schmoe.draw();
 		enemyList.push(schmoe);
 		
@@ -104,57 +135,119 @@ class GameManager extends Sprite
 		var keyPressed = e.keyCode;
 		var delta = new Point();
 		
+		for (rock in temporaryItems)
+		{
+			rock.erase();
+		}
+		temporaryItems = [];
+		
 		switch (keyPressed)
 		{
 			case numlKEY_UP:
 				delta.x = 0;
 				delta.y = -1;
-				PlayerMovement(delta);
+				
 				
 			case numlKEY_UPLEFT:
 				delta.x = -1;
 				delta.y = -1;
-				PlayerMovement(delta);
+			
 				
 			case numlKEY_UPRIGHT:
 				delta.x = 1;
 				delta.y = -1;
-				PlayerMovement(delta);
+				
 				
 			case numlKEY_DOWN:
 				delta.x = 0;
 				delta.y = 1;
-				PlayerMovement(delta);
+				
 				
 			case numlKEY_DOWNLEFT:
 				delta.x = -1;
 				delta.y = 1;
-				PlayerMovement(delta);
+				
 				
 			case numlKEY_DOWNRIGHT:
 				delta.x = 1;
 				delta.y = 1;
-				PlayerMovement(delta);
+				
 				
 			case numlKEY_LEFT:
 				delta.x = -1;
 				delta.y = 0;
-				PlayerMovement(delta);
+				
 				
 			case numlKEY_RIGHT:
 				delta.x = 1;
 				delta.y = 0;
-				PlayerMovement(delta);
+				
 			
-			case KEY_G:
-				camerax+=5;
-				reDrawAll();
+			case KEY_S:
+				reportFeed.sayThis("Enter Direction to shoot");
+				useSkill = true;
+				okToMove = false;
+				wait = true;
 				
 			default:
 				
 		}
-		updatePlayerStatus();
-		checkIfNeedToCenterPlayer();
+		
+		if (wait == false)
+		{	
+			if(okToMove)
+			{
+				PlayerMovement(delta);
+				announceItemOnFoot();
+			} 
+			
+			if (useSkill)
+			{
+				//cast skill
+				mainMech.SkillSet[3].fire(delta);
+				
+				regenEffectUpdate();
+				useSkill = false;
+				okToMove = true;
+				giveEnemyTurn();
+			}
+			
+			
+			updatePlayerStatus();
+			checkIfNeedToCenterPlayer();
+		}
+		
+		wait = false;
+	}
+	
+	public function announceItemOnFoot():Void
+	{
+		for (litter in itemList)
+		{
+			if (litter._x == mainMech._x && litter._y == mainMech._y)
+			{
+				reportFeed.sayThis("There is a " +litter.name+" here.");
+			}
+		}
+	}
+	
+	public function regenEffectUpdate():Void
+	{
+		if (mainMech.tickCounter >= mainMech.tickPerRegen)
+		{
+			if (mainMech.HitPoints < mainMech.HitPoints)
+			{
+				mainMech.HitPoints += mainMech.HPRegenRate;
+			}
+			
+			if (mainMech.Energy < mainMech.MaxEN)
+			{
+				mainMech.Energy += mainMech.ENRegenRate;
+			}
+			
+			mainMech.tickCounter = 0;
+		}
+		mainMech.tickCounter++;
 	}
 	
 	public function redrawHUD():Void
@@ -165,6 +258,8 @@ class GameManager extends Sprite
 		HUDEn.draw();
 		reportFeed.draw();
 	}
+	
+	
 	
 	public function updatePlayerStatus():Void
 	{
@@ -185,6 +280,7 @@ class GameManager extends Sprite
 					mainMech.move(delta.x, delta.y);
 				}
 		}
+		regenEffectUpdate();
 		updateSeenTiles();
 		giveEnemyTurn();
 	}
@@ -314,6 +410,21 @@ class GameManager extends Sprite
 				trace(attacker.Name + " missed");
 				reportFeed.sayThis(attacker.Name + " missed");
 			}
+	}
+	
+	public function checkForDead():Void
+	{
+		var foundDead:Bool = false;
+		for (body in enemyList)
+		{
+			if (body.HitPoints <= 0)
+			{
+				removeEnemyFromList(body);
+				foundDead = true;
+			}
+		}
+		
+		if (foundDead) mainMech.reDraw();
 	}
 	
 	public function removeEnemyFromList(enemy:Hero):Void

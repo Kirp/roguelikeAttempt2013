@@ -87,7 +87,7 @@ class MapTileDisplayItems
 		switch (newMarker)
 		{
 			case ITEM_EMPTY: //(0) ground
-				Lib.current.removeChild(face);
+				Lib.stage.removeChild(face);
 				face = null;
 				name = "Empty";
 				
@@ -140,7 +140,7 @@ class MapTileDisplayItems
 			{
 			face.x = (this._x) * TileSheetsGrid.TILE_WIDTH + cameraOffsetx;
 			face.y = (this._y) * TileSheetsGrid.TILE_HEIGHT + cameraOffsety;
-			Lib.current.stage.addChild(face);
+			Lib.stage.addChild(face);
 			}
 		} else
 			{
@@ -151,7 +151,7 @@ class MapTileDisplayItems
 	
 	public function erase():Void
 	{
-		Lib.current.stage.removeChild(face);
+		Lib.stage.removeChild(face);
 	}
 	
 	public function sayName():String

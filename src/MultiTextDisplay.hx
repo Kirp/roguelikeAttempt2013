@@ -15,6 +15,7 @@ class MultiTextDisplay
 	private var TX2:FeedBackDisplay;
 	private var TX3:FeedBackDisplay;
 	private var TX4:FeedBackDisplay;
+	private var TX5:FeedBackDisplay;
 	private var sameLineCount:Int = 1;
 	private var lastSay:String;
 	
@@ -28,7 +29,8 @@ class MultiTextDisplay
 		TX2 = new FeedBackDisplay(_x, _y + 20);
 		TX3 = new FeedBackDisplay(_x, _y + 30);
 		TX4 = new FeedBackDisplay(_x, _y + 40);
-		
+		TX5 = new FeedBackDisplay(_x, _y + 50);
+ 		
 	}
 	
 	public function draw():Void
@@ -37,6 +39,7 @@ class MultiTextDisplay
 		TX2.draw();
 		TX3.draw();
 		TX4.draw();
+		TX5.draw();
 	}
 	
 	public function updateContent():Void
@@ -61,6 +64,11 @@ class MultiTextDisplay
 			TX4.sayThis(Lines[Lines.length-4]);
 		}
 		
+		if (Lines[Lines.length-5] != null)
+		{
+			TX5.sayThis(Lines[Lines.length-5]);
+		}
+		
 	}
 	
 	public function sayThis(say:String):Void
@@ -75,7 +83,7 @@ class MultiTextDisplay
 				{
 					Lines.pop();
 					sameLineCount++;
-					Lines.push(say + "(" +sameLineCount + ")");
+					Lines.push(say + "(x" +sameLineCount + ")");
 					
 				}else 
 					{
