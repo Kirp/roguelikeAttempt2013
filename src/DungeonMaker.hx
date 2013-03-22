@@ -16,6 +16,9 @@ class DungeonMaker extends Sprite
 	public var MAP_WIDTH = 42;
 	public var MAP_HEIGHT = 30;
 	
+	
+	private var MINIMUM_LEN = 3;
+	private var MINIMUM_WID = 3;
 	public var MapTile:Array<Array<Int>>;
 	public var TilesLoaded:Array<MapTileDisplayTiles>;
 	public var RoomList:Array<RoomData>;
@@ -23,7 +26,8 @@ class DungeonMaker extends Sprite
 	public var cameraOffsetx:Int =0;
 	public var cameraOffsety:Int = 0;
 	public var isDrawn:Bool = false;
-	
+	public var stairsUp:Point;
+	public var stairsDown:Point;
 	
 	public function new(width:Int, height:Int) 
 	{
@@ -34,6 +38,16 @@ class DungeonMaker extends Sprite
 		MapTile = [];
 		TilesLoaded = [];
 		RoomList = [];
+		
+	}
+	
+	public function clearTiles():Void
+	{
+		for (entity in TilesLoaded)
+		{
+			entity.clear();
+		}
+		
 		
 	}
 	
@@ -95,8 +109,9 @@ class DungeonMaker extends Sprite
 	
 	public function addRandomRectangle(tile:Int, maxlen:Int, maxWidth:Int):Void
 	{
-		var lenRoll = Math.floor(Math.random() * maxlen) + 3;
-		var heiRoll = Math.floor(Math.random() * maxWidth) + 3;
+		var numberOfChecks:Int = 0;
+		var lenRoll = Math.floor(Math.random() * (maxlen - MINIMUM_LEN)) + MINIMUM_LEN;
+		var heiRoll = Math.floor(Math.random() * (maxWidth - MINIMUM_WID)) + MINIMUM_WID;
 		var goodRect:Bool = false;
 		var copySpotted:Bool = false;
 		
@@ -108,7 +123,7 @@ class DungeonMaker extends Sprite
 			
 			for (y in 0...heiRoll+1)
 			{
-				for (x in 0...lenRoll+1)
+				for (x in 0...lenRoll+1) //@TODO: diceroll value gets a neg number, fix it
 				{
 					if (MapTile[diceRolly + y][diceRollx + x] == tile)
 					{
@@ -120,6 +135,7 @@ class DungeonMaker extends Sprite
 			if (copySpotted == true)
 			{
 				goodRect = false;
+				numberOfChecks++;
 			} else 
 				{
 					for (y in 0...heiRoll+1)
@@ -142,6 +158,11 @@ class DungeonMaker extends Sprite
 					RoomList.push(new RoomData(diceRollx, diceRolly, lenRoll, heiRoll));
 					goodRect = true;
 				}
+			if (numberOfChecks > 100) 
+			{	
+				trace("cannot fit room");
+				break;
+			}
 		}	
 	}
 	
@@ -204,6 +225,49 @@ class DungeonMaker extends Sprite
 			}
 			connectRoomTo(i, b);
 		}
+	}
+	
+	public function addStairs():Void
+	{
+		var randomPickRoom = Std.int(Math.random() * (RoomList.length - 1));
+		var roomOpenSpace = RoomList[randomPickRoom].getOpenSpace();
+		var randomOpenTile = Std.int(Math.random() * (roomOpenSpace.length - 1));
+		var pickedTile:Point = roomOpenSpace[randomOpenTile];
+		MapTile[Std.int(pickedTile.y)][Std.int(pickedTile.x)] = MapTileDisplayTiles.ITEM_STAIRSDOWN;
+		stairsDown = new Point(pickedTile.x, pickedTile.y);
+		
+		var randomPickRoomB = Std.int(Math.random() * (RoomList.length - 1));
+		while (randomPickRoom == randomPickRoomB) 
+		{
+			randomPickRoomB = Std.int(Math.random() * (RoomList.length - 1));
+		}
+		
+		var roomOpenSpaceB = RoomList[randomPickRoomB].getOpenSpace();
+		var randomOpenTileB = Std.int(Math.random() * (roomOpenSpaceB.length - 1));
+		var pickedTileB = roomOpenSpaceB[randomOpenTileB];
+		MapTile[Std.int(pickedTileB.y)][Std.int(pickedTileB.x)] = MapTileDisplayTiles.ITEM_STAIRSUP;
+		stairsUp = new Point(pickedTileB.x, pickedTileB.y);
+	}
+	
+	public function getRandomOpenSpace():Point
+	{
+		var randomPickRoom = Std.int(Math.random() * (RoomList.length - 1));
+		var roomOpenSpace = RoomList[randomPickRoom].getOpenSpace();
+		var randomOpenTile = Std.int(Math.random() * (roomOpenSpace.length - 1));
+		var pickedTile:Point = roomOpenSpace[randomOpenTile];
+		return pickedTile;
+	}
+	
+	public function initializeMapWithRoomSetupA(numberOfRooms:Int, maxRoomWidth:Int, maxRoomHeight:Int):Void
+	{
+		fillMapWith(0);
+		for (rooms in 0...numberOfRooms)
+		{
+			addRandomRectangle(2, maxRoomWidth, maxRoomHeight);
+		}
+		
+		connectAllRooms();
+		addStairs();
 	}
 	
 }

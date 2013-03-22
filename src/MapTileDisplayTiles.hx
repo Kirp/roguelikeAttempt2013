@@ -16,6 +16,8 @@ class MapTileDisplayTiles
 	inline public static var TILE_TREE = 4;
 	inline public static var TILE_OPENDOOR = 5;
 	inline public static var TILE_CLOSEDDOOR = 6;
+	inline public static var ITEM_STAIRSDOWN = 7;
+	inline public static var ITEM_STAIRSUP = 8;
 	
 	//class variables
 	public var marker:Int;
@@ -64,6 +66,13 @@ class MapTileDisplayTiles
 			case TILE_CLOSEDDOOR: //(6) closed door
 				face = new TileSheetsGrid(44);
 				
+			case ITEM_STAIRSDOWN: //(7) Stairs down
+				face = new TileSheetsGrid(63);
+				isPassable = true;
+				
+			case ITEM_STAIRSUP: //(8) Stairs up
+				face = new TileSheetsGrid(61);
+				isPassable = true;
 				
 			default:
 				face = new TileSheetsGrid(2);
@@ -130,11 +139,23 @@ class MapTileDisplayTiles
 			case TILE_CLOSEDDOOR: //(6) closed door
 				face.changeTile(44);
 				
+			case ITEM_STAIRSDOWN: //(7) Stairs down
+				face.changeTile(63);
+				
+				
+			case ITEM_STAIRSUP: //(8) Stairs up
+				face.changeTile(61);
+				
 				
 			default:
 				face.changeTile(2);
 		}
 		
+	}
+	
+	public function clear():Void
+	{
+		Lib.stage.removeChild(face);
 	}
 	
 }

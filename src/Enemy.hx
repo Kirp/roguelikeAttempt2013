@@ -23,7 +23,6 @@ class Enemy extends Hero
 	public var priorityTarget:Hero;
 	private var isReported:Bool = false;
 	
-	
 	public function new(x:Float, y:Float, mainTarget:Hero, gameMaster:GameManager) 
 	{
 		super(x, y, gameMaster);
@@ -111,10 +110,7 @@ class Enemy extends Hero
 					if (a.Score < b.Score) return 1;
 					else return -1;
 					});
-		for (item in rankSquares)
-		{
-			trace(item.Score);
-		}
+
 		var bestSquare = rankSquares.pop();
 		
 		if (master.canMoveTo(bestSquare._x, bestSquare._y, master.arrdungeonStages[master.currentStage].TilesLoaded))
@@ -220,5 +216,7 @@ class Enemy extends Hero
 		face.visible = false;
 		isReported = false;
 	}
+	
+	
 	
 }

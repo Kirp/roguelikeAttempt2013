@@ -25,6 +25,14 @@ class SpecialMove
 		master = gm;
 	}
 	
+	public function canFire():Bool
+	{
+		if (caster.Energy >= energyCost)
+		{
+			return true;
+		} else return false;
+	}
+	
 	public function fire(direction:Point):Void
 	{
 		

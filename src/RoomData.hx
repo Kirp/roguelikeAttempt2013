@@ -1,4 +1,5 @@
 package ;
+import nme.geom.Point;
 
 /**
  * ...
@@ -23,6 +24,23 @@ class RoomData
 		
 		centerX = Math.floor(locX + width / 2);
 		centerY = Math.floor(locY + height / 2);
+	}
+	
+	public function getOpenSpace():Array<Point>
+	{
+		var roomSpace:Array<Point> = [];
+		var minx = locX + 1;
+		var miny = locY +1;
+		var maxx = (locX + width) - 1;
+		var maxy = (locY + height) -1;
+		for (y in miny...maxy)
+		{
+			for (x in minx...maxx)
+			{
+				roomSpace.push(new Point(x, y));
+			}
+		}
+		return roomSpace;
 	}
 	
 }

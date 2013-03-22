@@ -17,6 +17,10 @@ class MapTileDisplayItems
 	inline public static var ITEM_AXE = 6;
 	inline public static var ITEM_LOG = 7;
 	inline public static var ITEM_CORPSE = 8;
+	inline public static var ITEM_GOLDCOINS = 9;
+	inline public static var ITEM_GEMS = 10;
+	inline public static var ITEM_GOLDBARS = 11;
+	
 	
 	//class variables
 	public var marker:Int;
@@ -27,8 +31,9 @@ class MapTileDisplayItems
 	public var cameraOffsetx:Int;
 	public var cameraOffsety:Int;
 	public var isDrawn:Bool = false;
+	public var amount:Int = 0;
 	
-	public function new(_x:Float, _y:Float, marker:Int) 
+	public function new(_x:Float, _y:Float, marker:Int, amnt:Int = 0) 
 	{
 		this._x = _x;
 		this._y = _y;
@@ -76,6 +81,11 @@ class MapTileDisplayItems
 				face = new TileSheetsGrid(38);
 				name = "Corpse";
 				
+			case ITEM_GOLDCOINS: //(9) GOLD COINS
+				face = new TileSheetsGrid(37);
+				name = "Gold Coins";
+			
+			
 			default:
 				face = new TileSheetsGrid(2);
 				name = "unknown";
@@ -149,7 +159,7 @@ class MapTileDisplayItems
 			}
 	}
 	
-	public function erase():Void
+	public function clear():Void
 	{
 		Lib.stage.removeChild(face);
 	}

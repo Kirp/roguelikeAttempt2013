@@ -77,20 +77,12 @@ class GameManager extends Sprite
 		reportFeed.sayThis("Welcome to the game.");
 		
 		arrdungeonStages.push(stage);
-		arrdungeonStages[currentStage].fillMapWith(0);
 		
-		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
-		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
-		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
-		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
-		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
-		arrdungeonStages[currentStage].addRandomRectangle(2 , 15, 15);
-		
-		arrdungeonStages[currentStage].connectAllRooms();
+		arrdungeonStages[currentStage].initializeMapWithRoomSetupA(10, 15, 15);
 		
 		arrdungeonStages[currentStage].drawMap(camerax, cameray);
 		
-		mainMech = new MazinTypeHero(arrdungeonStages[currentStage].RoomList[0].centerX, arrdungeonStages[currentStage].RoomList[0].centerY, this);
+		mainMech = new MazinTypeHero(arrdungeonStages[currentStage].stairsUp.x, arrdungeonStages[currentStage].stairsUp.y, this);
 		mainMech.draw();
 		
 		//adding skills
@@ -126,6 +118,8 @@ class GameManager extends Sprite
 		
 		redrawHUD();
 		centerCamera();
+		
+		trace(arrdungeonStages[currentStage].RoomList[0].getOpenSpace());
 		//temp code end
 		Lib.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 	}
@@ -137,7 +131,7 @@ class GameManager extends Sprite
 		
 		for (rock in temporaryItems)
 		{
-			rock.erase();
+			rock.clear();
 		}
 		temporaryItems = [];
 		
@@ -188,6 +182,14 @@ class GameManager extends Sprite
 				useSkill = true;
 				okToMove = false;
 				wait = true;
+			
+			case KEY_D:
+				if (arrdungeonStages[currentStage].MapTile[Std.int(mainMech._y)][Std.int(mainMech._x)] == MapTileDisplayTiles.ITEM_STAIRSDOWN)
+				{
+					switchDungeonsForward();
+					
+				} else trace("no stairs here");
+				trace(arrdungeonStages.length);
 				
 			default:
 				
@@ -204,7 +206,7 @@ class GameManager extends Sprite
 			if (useSkill)
 			{
 				//cast skill
-				mainMech.SkillSet[3].fire(delta);
+				mainMech.SkillSet[2].fire(delta);
 				
 				regenEffectUpdate();
 				useSkill = false;
@@ -218,6 +220,45 @@ class GameManager extends Sprite
 		}
 		
 		wait = false;
+		
+	}
+	
+	public function switchDungeonsForward():Void
+	{
+		camerax = 0;
+		cameray = 0;
+		if (currentStage + 1 == arrdungeonStages.length)
+		{
+			purgeEntities();
+			var newStage = new DungeonMaker(50, 50);
+			newStage.initializeMapWithRoomSetupA( 10, 15, 15);
+			arrdungeonStages.push(newStage);
+			
+			arrdungeonStages[currentStage].clearTiles();
+			currentStage+=1;
+			arrdungeonStages[currentStage].drawMap(camerax, cameray);
+			mainMech._x = arrdungeonStages[currentStage].stairsUp.x;
+			mainMech._y = arrdungeonStages[currentStage].stairsUp.y;
+			mainMech.reDraw();
+		}
+		
+		updateSeenTiles();
+		redrawHUD();
+		centerCamera();
+	}
+	
+	public function purgeEntities():Void
+	{
+		for (item in itemList)
+		{
+			item.clear();
+		}
+		itemList = [];
+		for (enmy in enemyList)
+		{
+			enmy.removeAll();
+		}
+		enemyList = [];
 	}
 	
 	public function announceItemOnFoot():Void
@@ -283,6 +324,7 @@ class GameManager extends Sprite
 		regenEffectUpdate();
 		updateSeenTiles();
 		giveEnemyTurn();
+		enemySpawnCheck();
 	}
 	
 	public function reDrawAll():Void
@@ -368,6 +410,14 @@ class GameManager extends Sprite
 			if (tile._x == x && tile._y == y)
 			{
 				passable = tile.isPassable;
+			}
+		}
+		
+		for (enemy in enemyList)
+		{
+			if (enemy._x == x && enemy._y == y)
+			{
+				passable = false;
 			}
 		}
 		
@@ -522,5 +572,18 @@ class GameManager extends Sprite
 			}
 	}
 	
+	public function enemySpawnCheck():Void
+	{
+		if (enemyList.length < 4)
+		{	
+			var choicePick = Math.random();
+			var rangeSet:Bool = choicePick < 0.5?false:true;
+			var randomPoint = arrdungeonStages[currentStage].getRandomOpenSpace();
+			var schmoe = new Enemy(randomPoint.x, randomPoint.y, mainMech, this);
+			schmoe.isRangeUnit = rangeSet;
+			schmoe.draw();
+			enemyList.push(schmoe);
+		}
+	}
 	
 }

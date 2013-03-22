@@ -15,7 +15,7 @@ class Hero
 	public var HitPoints:Int= 100;
 	public var Energy:Int = 100;
 	public var Name:String = "Derp";
-	public var HeroismRank:Int = 0;
+	public var Level:Int = 1;
 	public var SkillSet:Array<SpecialMove>;
 	
 	//stats
@@ -127,6 +127,103 @@ class Hero
 	public function setRange(newRange:Int):Void
 	{
 		this.Range = newRange;
+	}
+	
+	public function setMaxHP(max:Int):Void
+	{
+		this.MaxHP = max;
+		this.HitPoints = max;
+	}
+	
+	public function setMaxEN(maxe:Int):Void
+	{
+		this.MaxEN = maxe;
+		this.Energy = maxe;
+	}
+	
+	public function setRegenRates(hpReg:Int, enReg:Int):Void
+	{
+		HPRegenRate = hpReg;
+		ENRegenRate = enReg;
+	}
+	
+	public function setSTR(str:Int):Void
+	{
+		this.STR = str;
+	}
+	
+	public function setAccuracy(val:Int):Void
+	{
+		this.Accuracy = val;
+	}
+	
+	public function setDodge(val:Int):Void
+	{
+		Dodge = val;
+	}
+	
+	public function setDamageCapacity(val:Int):Void
+	{
+		DamageCapacity = val;
+	}
+	
+	public function setReach(val:Int):Void
+	{
+		Reach = val;
+	}
+	
+	public function setSightRange(val:Int):Void
+	{
+		SightRange = val;
+	}
+	
+	public function setRangedUnitStatus(val:Bool):Void
+	{
+		isRangeUnit = val;
+	}
+	
+	public function setAllStats(name:String, maxHitp:Int, maxEner:Int, strength:Int, accura:Int, dodg:Int, DamCap:Int, rang:Int, reach:Int, sightR:Int, canRange:Bool):Void
+	{
+		setName(name);
+		setMaxHP(maxHitp);
+		setSTR(strength);
+		setAccuracy(accura);
+		setDodge(dodg);
+		setDamageCapacity(DamCap);
+		setRange(rang);
+		setReach(reach);
+		setSightRange(sightR);
+		setRangedUnitStatus(canRange);
+	}
+	
+	public function skillSetAvailable():Bool
+	{
+		if (SkillSet == null)
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	
+	
+	public function regenEffectTick():Void
+	{
+		if (tickCounter >= tickPerRegen)
+		{
+			if (HitPoints < HitPoints)
+			{
+				HitPoints += HPRegenRate;
+			}
+			
+			if (Energy < MaxEN)
+			{
+				Energy += ENRegenRate;
+			}
+			
+			tickCounter = 0;
+		}
+		tickCounter++;
 	}
 	
 	public function checkIfDead():Bool
