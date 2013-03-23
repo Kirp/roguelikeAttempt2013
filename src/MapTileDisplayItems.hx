@@ -38,6 +38,7 @@ class MapTileDisplayItems
 		this._x = _x;
 		this._y = _y;
 		this.marker = marker;
+		this.amount = amnt;
 		init();
 	}
 	
@@ -84,6 +85,10 @@ class MapTileDisplayItems
 			case ITEM_GOLDCOINS: //(9) GOLD COINS
 				face = new TileSheetsGrid(37);
 				name = "Gold Coins";
+				
+			case ITEM_GEMS: //(10) GEMS
+				face = new TileSheetsGrid(16);
+				name = "Gem";
 			
 			
 			default:
@@ -132,6 +137,11 @@ class MapTileDisplayItems
 			case ITEM_CORPSE: //(8) Corpse
 				face.changeTile(38);
 				name = "Corpse";
+				
+			case ITEM_GEMS: //(10) GEMS
+				face.changeTile(16);
+				name = "Gem";
+			
 				
 			default:
 				face.changeTile(2);

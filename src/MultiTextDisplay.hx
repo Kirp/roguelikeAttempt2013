@@ -18,6 +18,7 @@ class MultiTextDisplay
 	private var TX5:FeedBackDisplay;
 	private var sameLineCount:Int = 1;
 	private var lastSay:String;
+	private var currentColor:UInt = 0xFFFFFF;
 	
 	public function new(x:Float, y:Float) 
 	{
@@ -42,8 +43,18 @@ class MultiTextDisplay
 		TX5.draw();
 	}
 	
+	public function clearUp():Void
+	{
+		TX1.clearText();
+		TX2.clearText();
+		TX3.clearText();
+		TX4.clearText();
+		TX5.clearText();
+	}
+	
 	public function updateContent():Void
 	{
+
 		if (Lines[Lines.length-1] != null)
 		{
 			TX1.sayThis(Lines[Lines.length-1]);
@@ -73,6 +84,7 @@ class MultiTextDisplay
 	
 	public function sayThis(say:String):Void
 	{
+		
 		if (Lines.length <= 0)
 		{
 			Lines.push(say);

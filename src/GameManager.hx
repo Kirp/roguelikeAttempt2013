@@ -37,6 +37,7 @@ class GameManager extends Sprite
 	public var itemList:Array<MapTileDisplayItems>;
 	public var enemyList:Array<Enemy>;
 	public var temporaryItems:Array<MapTileDisplayItems>;
+	public var maxGemAllowed:Int = 10;
 	
 	public var tilesInSight:Array<Point>;
 	
@@ -47,6 +48,7 @@ class GameManager extends Sprite
 	
 	public var HUDHp:FeedBackDisplay;
 	public var HUDEn:FeedBackDisplay;
+	public var HUDCash:FeedBackDisplay;
 	public var reportFeed:MultiTextDisplay;
 	public var okToMove:Bool = true;
 	public var useSkill:Bool = false;
@@ -55,6 +57,7 @@ class GameManager extends Sprite
 	public var camerax:Int = 0; //TODO: FIX THIS DAMN CAMERA
 	public var cameray:Int = 0;
 	
+	private var GameOverFlag:Bool = false;
 	
 	public function new() 
 	{
@@ -71,6 +74,7 @@ class GameManager extends Sprite
 		
 		HUDHp = new FeedBackDisplay(10, 1);
 		HUDEn = new FeedBackDisplay(10, 10);
+		HUDCash = new FeedBackDisplay(10, 21);
 		reportFeed = new MultiTextDisplay(50, 300);
 		
 		
@@ -119,7 +123,7 @@ class GameManager extends Sprite
 		redrawHUD();
 		centerCamera();
 		
-		trace(arrdungeonStages[currentStage].RoomList[0].getOpenSpace());
+		spawnGems();
 		//temp code end
 		Lib.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 	}
@@ -201,6 +205,7 @@ class GameManager extends Sprite
 			{
 				PlayerMovement(delta);
 				announceItemOnFoot();
+				autoPickUp();
 			} 
 			
 			if (useSkill)
@@ -259,6 +264,10 @@ class GameManager extends Sprite
 			enmy.removeAll();
 		}
 		enemyList = [];
+		for (extras in temporaryItems)
+		{
+			extras.clear();
+		}
 	}
 	
 	public function announceItemOnFoot():Void
@@ -270,6 +279,25 @@ class GameManager extends Sprite
 				reportFeed.sayThis("There is a " +litter.name+" here.");
 			}
 		}
+	}
+	
+	public function autoPickUp():Void
+	{
+		for (litter in itemList)
+		{
+			if (litter.marker == MapTileDisplayItems.ITEM_GOLDCOINS || litter.marker == MapTileDisplayItems.ITEM_GEMS)
+			{	
+				if (litter._x == mainMech._x && litter._y == mainMech._y)
+				{
+					reportFeed.sayThis("You picked up " +litter.name);
+					mainMech.cash += litter.amount;
+					trace(mainMech.cash);
+					litter.clear();
+					itemList.remove(litter);
+				}
+			}
+		}
+		mainMech.checkForLevelUp();
 	}
 	
 	public function regenEffectUpdate():Void
@@ -297,6 +325,8 @@ class GameManager extends Sprite
 		HUDHp.draw();
 		HUDEn.sayThis("EN :" + Std.string(mainMech.Energy));
 		HUDEn.draw();
+		HUDCash.sayThis("Wealth :" +Std.string(mainMech.cash));
+		HUDCash.draw();
 		reportFeed.draw();
 	}
 	
@@ -306,6 +336,20 @@ class GameManager extends Sprite
 	{
 		HUDHp.sayThis("HP :" + Std.string(mainMech.HitPoints));
 		HUDEn.sayThis("EN :" + Std.string(mainMech.Energy));
+		HUDCash.sayThis("Wealth :" +Std.string(mainMech.cash));
+		if (mainMech.HitPoints <= 0) cleanUpAndExit();
+	}
+	
+	public function cleanUpAndExit():Void
+	{
+		purgeEntities();
+		arrdungeonStages[currentStage].clearTiles();
+		GameOverFlag = true;
+		mainMech.removeAll(); 
+		HUDCash.clearText();
+		HUDEn.clearText();
+		HUDHp.clearText();
+		reportFeed.clearUp();
 	}
 	
 	public function PlayerMovement(delta:Point):Void
@@ -485,7 +529,7 @@ class GameManager extends Sprite
 			{
 				trace(dead.Name + " was killed!");
 				reportFeed.sayThis(dead.Name + " was killed!");
-				var remains = new MapTileDisplayItems(dead._x, dead._y, MapTileDisplayItems.ITEM_CORPSE);
+				var remains = new MapTileDisplayItems(dead._x, dead._y, MapTileDisplayItems.ITEM_GOLDCOINS, 100);
 				remains.draw(camerax, cameray);
 				itemList.push(remains);
 				dead.removeAll();
@@ -586,4 +630,15 @@ class GameManager extends Sprite
 		}
 	}
 	
+	public function spawnGems():Void
+	{
+		for (valuables in 0...maxGemAllowed)
+		{
+			var randomPoint = arrdungeonStages[currentStage].getRandomOpenSpace();
+			var gem = new MapTileDisplayItems(randomPoint.x, randomPoint.y, MapTileDisplayItems.ITEM_GEMS, 10);
+			gem.draw(camerax, cameray);
+			itemList.push(gem);
+			
+		}
+	}
 }

@@ -26,7 +26,8 @@ class Hero
 	public var MaxEN:Int = 100;
 	public var tickPerRegen:Int = 5;
 	public var tickCounter:Int = 0;
-	
+	public var cash:Int = 0;
+	public var requirementForLevelUp:Int = 1000;
 	
 	//combat modifiers
 	public var Accuracy:Int = 50;
@@ -51,7 +52,7 @@ class Hero
 		SkillSet = [];
 		this._x = x;
 		this._y = y;
-		face = new TileSheetsGrid(65);
+		face = new TileSheetsGrid(101);
 		face.x = _x * TILE_WIDTH;
 		face.y = _y * TILE_HEIGHT;
 	}
@@ -282,5 +283,19 @@ class Hero
 	{
 		face.x = (this._x) * TILE_WIDTH + master.camerax;
 		face.y = (this._y) * TILE_HEIGHT + master.cameray;
+	}
+	
+	public function checkForLevelUp():Void
+	{
+		if (cash >= requirementForLevelUp)
+		{
+			this.Level++;
+			requirementForLevelUp *= 2;
+			MaxHP += 10;
+			MaxEN += 10;
+			Accuracy += 4;
+			DamageCapacity = Std.int(Level * 0.2);
+			master.reportFeed.sayThis("You reached level "+this.Level);
+		}
 	}
 }

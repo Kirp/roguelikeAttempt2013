@@ -2,6 +2,7 @@ package ;
 
 import nme.display.Sprite;
 import nme.events.Event;
+import nme.events.KeyboardEvent;
 import nme.geom.Point;
 import nme.Lib;
 
@@ -10,11 +11,18 @@ import nme.Lib;
  * @author VGC
  */
 
+ enum GameState {
+	 
+	 startMode;
+	 gameMode;
+	 endMode;
+ }
+ 
+ 
 class Main extends Sprite 
 {
 	private var GM:GameManager;
-	
-	
+	private var StScreen:SartScreen;
 	
 	
 	public function new() 
@@ -30,42 +38,25 @@ class Main extends Sprite
 	private function init(e) 
 	{
 		// entry point
-		GM = new GameManager();
+		StScreen = new SartScreen();
+		addChild(StScreen);
+		
+		stage.addEventListener(KeyboardEvent.KEY_DOWN, startOnKeyDown);
+		//GM = new GameManager();
 		//addChild(GM);
 		
 	}
 	
-	
-	function drawDiamondWithPoints(range:Int):Void
+	private function startOnKeyDown(e:KeyboardEvent):Void 
 	{
-		var pointList:Array<Point> = [];
-		var pattern = range;
-		for (y in 0...range+1)
-		{
-			
-			for (x in (pattern*-1)...pattern+1)
-			{
-				pointList.push(new Point(x,y));
-			}
-			pattern--;
-			
-		}
-		
-		//top half
-		
-		var pattern = range -1;
-		for (y in 1...range+1)
-		{
-			
-			for (x in (pattern*-1)...pattern+1)
-			{
-				pointList.push(new Point(x,y*-1));
-			}
-			pattern--;
-			
-		}
-		
+		StScreen.clearUp();
+		removeChild(StScreen);
+		stage.removeEventListener(KeyboardEvent.KEY_DOWN, startOnKeyDown);
+		GM = new GameManager();
 	}
+	
+	
+	
 	
 	static public function main() 
 	{

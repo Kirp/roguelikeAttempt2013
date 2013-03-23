@@ -40,6 +40,12 @@ class FeedBackDisplay extends Sprite
 		
 	}
 	
+	public function changeSize(newSize:Int):Void
+	{
+		regFormat.size = newSize;
+		mainChatter.defaultTextFormat = regFormat;
+	}
+	
 	public function draw():Void
 	{
 		if (isDrawn == false)
@@ -53,9 +59,11 @@ class FeedBackDisplay extends Sprite
 			}
 	}
 	
-	public function sayThis(say:String):Void
+	public function sayThis(say:String, colorCode:UInt = 0xFFFFFF):Void
 	{
+		regFormat.color = colorCode;
 		mainChatter.text = say;
+		regFormat.color = 0xFFFFFF;
 	}
 	
 	public function clearText():Void
