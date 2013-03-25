@@ -19,7 +19,7 @@ class MapTileDisplayItems
 	inline public static var ITEM_CORPSE = 8;
 	inline public static var ITEM_GOLDCOINS = 9;
 	inline public static var ITEM_GEMS = 10;
-	inline public static var ITEM_GOLDBARS = 11;
+	inline public static var ITEM_GOLDSTATUE = 11;
 	
 	
 	//class variables
@@ -90,7 +90,10 @@ class MapTileDisplayItems
 				face = new TileSheetsGrid(16);
 				name = "Gem";
 			
-			
+			case ITEM_GOLDSTATUE: //(11) GoldStatue
+				face = new TileSheetsGrid(235);
+				name = "Gold Statue";
+				
 			default:
 				face = new TileSheetsGrid(2);
 				name = "unknown";
@@ -142,6 +145,9 @@ class MapTileDisplayItems
 				face.changeTile(16);
 				name = "Gem";
 			
+			case ITEM_GOLDSTATUE: //(11) GoldStatue
+				face.changeTile(235);
+				name = "Gold Statue";
 				
 			default:
 				face.changeTile(2);

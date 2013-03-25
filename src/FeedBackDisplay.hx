@@ -23,7 +23,7 @@ class FeedBackDisplay extends Sprite
 
 		regFormat = new TextFormat();
 		regFormat.font = "Times";
-		regFormat.size = 10;
+		regFormat.size = 12;
 		regFormat.color = 0xFFFFFFFF;
 		
 		

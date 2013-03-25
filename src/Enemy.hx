@@ -26,12 +26,13 @@ class Enemy extends Hero
 	public function new(x:Float, y:Float, mainTarget:Hero, gameMaster:GameManager) 
 	{
 		super(x, y, gameMaster);
-		setName("DudeBro");
+		setName("Dwarf");
 		behavior = sentry;
 		changeFace(2);
 		priorityTarget = mainTarget;
 		master = gameMaster;
 		face.visible = false;
+		setRange(5);
 	}
 	
 	public function isAttackedBy(attacker:Hero):Void
@@ -47,7 +48,7 @@ class Enemy extends Hero
 				//scan for target here
 				if (scanForTarget())
 				{
-					trace("main target sighted");
+					//trace("main target sighted");
 					currentTarget = priorityTarget;
 				}
 				if (currentTarget != null) //if target found then switch to engage mode
@@ -72,7 +73,15 @@ class Enemy extends Hero
 				}else if (checkIfTargetWithinMelee())
 					{
 						useMeleeAttackOnTarget(priorityTarget);
-					} else simpleMoveToTargetB(priorityTarget); //use skill script here or fire range or start moving
+					} else
+						{
+							simpleMoveToTargetB(priorityTarget); //use skill script here or fire range or start moving
+							if (scanForTarget() == false)
+							{
+								currentTarget = null;
+								behavior = sentry;
+							}
+						}
 		}
 		checkIfSeen();
 	}
@@ -85,7 +94,7 @@ class Enemy extends Hero
 		if (master.canMoveTo(this._x + delta.x, this._y + delta.y, master.arrdungeonStages[master.currentStage].TilesLoaded))
 		{
 			move(delta.x, delta.y);
-		}else trace(this.Name + " cannot move");
+		}//else trace(this.Name + " cannot move");
 		
 	}
 	
@@ -116,7 +125,7 @@ class Enemy extends Hero
 		if (master.canMoveTo(bestSquare._x, bestSquare._y, master.arrdungeonStages[master.currentStage].TilesLoaded))
 		{
 			move(bestSquare.deltax, bestSquare.deltay);
-		} else trace("cannot reach target");
+		} //else trace("cannot reach target");
 		
 	}
 	
@@ -171,8 +180,8 @@ class Enemy extends Hero
 		var attackRoll = rollDice(100);
 		if (attackRoll <= this.Accuracy - Target.Dodge)
 		{
-			trace(this.Name +" hits the " + Target.Name);
-			trace("doing " + this.STR * this.DamageCapacity + " damage");
+			//trace(this.Name +" hits the " + Target.Name);
+			//trace("doing " + this.STR * this.DamageCapacity + " damage");
 			
 			master.reportFeed.sayThis(this.Name +" hits the " + Target.Name + " doing " + this.STR * this.DamageCapacity + " damage");
 			
@@ -181,7 +190,7 @@ class Enemy extends Hero
 			
 		} else 
 			{
-				trace(this.Name + " missed");	
+				//trace(this.Name + " missed");	
 				master.reportFeed.sayThis(this.Name + " missed");
 			}
 	}
@@ -217,6 +226,17 @@ class Enemy extends Hero
 		isReported = false;
 	}
 	
+	public function levelUpTo(lvl:Int):Void
+	{
+			this.Level = lvl;
+			requirementForLevelUp *= 2;
+			MaxHP += 10 * lvl;
+			MaxEN += 10 * lvl;
+			Accuracy += 4 * lvl;
+			Dodge += 1 * lvl;
+			DamageCapacity = Std.int(Level * 0.2);
+			DamageCapacity = DamageCapacity < 1?1:DamageCapacity;
+	}
 	
 	
 }

@@ -73,9 +73,9 @@ class GameManager extends Sprite
 		var stage = new DungeonMaker(50, 50); 
 		
 		HUDHp = new FeedBackDisplay(10, 1);
-		HUDEn = new FeedBackDisplay(10, 10);
-		HUDCash = new FeedBackDisplay(10, 21);
-		reportFeed = new MultiTextDisplay(50, 300);
+		HUDEn = new FeedBackDisplay(10, 12);
+		HUDCash = new FeedBackDisplay(10, 23);
+		reportFeed = new MultiTextDisplay(50, 350);
 		
 		
 		reportFeed.sayThis("Welcome to the game.");
@@ -96,27 +96,12 @@ class GameManager extends Sprite
 		var rocketPunch = new SpecialMoveMissile("Rocket Punch", 5, 25, mainMech, this, 10);
 		mainMech.SkillSet.push(rocketPunch);
 		
-		var breastFire = new SpecialMoveConeBlast("Breast Fire", 5, 40, mainMech, this, 4);
+		var breastFire = new SpecialMoveConeBlast("Breast Fire", 50, 50, mainMech, this, 4);
 		mainMech.SkillSet.push(breastFire);
 		
 		var fireBlaster = new SpecialMoveFatLineBlast("Fire Blaster", 5 , 50, mainMech, this, 5);
 		mainMech.SkillSet.push(fireBlaster);
-		
-		var schmoe = new Enemy(arrdungeonStages[currentStage].RoomList[1].centerX, arrdungeonStages[currentStage].RoomList[1].centerY, mainMech, this);
-		schmoe.draw();
-		enemyList.push(schmoe);
-		
-		var schmoe = new Enemy(arrdungeonStages[currentStage].RoomList[2].centerX, arrdungeonStages[currentStage].RoomList[2].centerY, mainMech, this);
-		schmoe.isRangeUnit = false;
-		schmoe.draw();
-		enemyList.push(schmoe);
-		
-		var schmoe = new Enemy(arrdungeonStages[currentStage].RoomList[3].centerX, arrdungeonStages[currentStage].RoomList[3].centerY, mainMech, this);
-		schmoe.isRangeUnit = false;
-		schmoe.draw();
-		enemyList.push(schmoe);
-		
-		
+			
 		updateSeenTiles();
 		
 		
@@ -124,12 +109,15 @@ class GameManager extends Sprite
 		centerCamera();
 		
 		spawnGems();
+		
 		//temp code end
 		Lib.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 	}
 	
 	public function onKeyDown(e:KeyboardEvent):Void 
 	{
+		
+		if (GameOverFlag) return;
 		var keyPressed = e.keyCode;
 		var delta = new Point();
 		
@@ -192,8 +180,8 @@ class GameManager extends Sprite
 				{
 					switchDungeonsForward();
 					
-				} else trace("no stairs here");
-				trace(arrdungeonStages.length);
+				} //else //trace("no stairs here");
+				//trace(arrdungeonStages.length);
 				
 			default:
 				
@@ -246,6 +234,13 @@ class GameManager extends Sprite
 			mainMech._y = arrdungeonStages[currentStage].stairsUp.y;
 			mainMech.reDraw();
 		}
+		if (currentStage >= 30)
+		{
+			spawnGoldStatue();
+		}
+		
+		spawnGems();
+		
 		
 		updateSeenTiles();
 		redrawHUD();
@@ -285,19 +280,26 @@ class GameManager extends Sprite
 	{
 		for (litter in itemList)
 		{
-			if (litter.marker == MapTileDisplayItems.ITEM_GOLDCOINS || litter.marker == MapTileDisplayItems.ITEM_GEMS)
+			if (litter.marker == MapTileDisplayItems.ITEM_GOLDCOINS || litter.marker == MapTileDisplayItems.ITEM_GEMS || litter.marker == MapTileDisplayItems.ITEM_GOLDSTATUE)
 			{	
 				if (litter._x == mainMech._x && litter._y == mainMech._y)
 				{
 					reportFeed.sayThis("You picked up " +litter.name);
 					mainMech.cash += litter.amount;
-					trace(mainMech.cash);
+					mainMech.healUp(5);
+					//trace(mainMech.cash);
 					litter.clear();
 					itemList.remove(litter);
 				}
 			}
 		}
 		mainMech.checkForLevelUp();
+		if (mainMech.cash >= 50000)
+		{
+			cleanUpAndExit();
+			GameOverFlag = true;
+			showGameOverWin();
+		}
 	}
 	
 	public function regenEffectUpdate():Void
@@ -337,7 +339,11 @@ class GameManager extends Sprite
 		HUDHp.sayThis("HP :" + Std.string(mainMech.HitPoints));
 		HUDEn.sayThis("EN :" + Std.string(mainMech.Energy));
 		HUDCash.sayThis("Wealth :" +Std.string(mainMech.cash));
-		if (mainMech.HitPoints <= 0) cleanUpAndExit();
+		if (mainMech.HitPoints <= 0) 
+		{
+			cleanUpAndExit();
+			showGameOverLose();
+		}	
 	}
 	
 	public function cleanUpAndExit():Void
@@ -350,6 +356,18 @@ class GameManager extends Sprite
 		HUDEn.clearText();
 		HUDHp.clearText();
 		reportFeed.clearUp();
+	}
+	
+	public function showGameOverLose():Void
+	{
+		var lose:GameOverLose = new GameOverLose();
+		addChild(lose);
+	}
+	
+	public function showGameOverWin():Void
+	{
+		var win:GameOverWin = new GameOverWin();
+		addChild(win);
 	}
 	
 	public function PlayerMovement(delta:Point):Void
@@ -486,8 +504,8 @@ class GameManager extends Sprite
 		var attackRoll = rollDice(100);
 		if (attackRoll <= attacker.Accuracy - defender.Dodge)
 		{
-			trace(attacker.Name +" hits the " + defender.Name);
-			trace("doing " + attacker.STR * attacker.DamageCapacity + " damage");
+			//trace(attacker.Name +" hits the " + defender.Name);
+			//trace("doing " + attacker.STR * attacker.DamageCapacity + " damage");
 			reportFeed.sayThis(attacker.Name +" hits the " + defender.Name+"doing " + attacker.STR * attacker.DamageCapacity + " damage");
 			defender.HitPoints -= attacker.STR * attacker.DamageCapacity;
 			if (defender.checkIfDead())
@@ -501,7 +519,7 @@ class GameManager extends Sprite
 			
 		} else 
 			{
-				trace(attacker.Name + " missed");
+				//trace(attacker.Name + " missed");
 				reportFeed.sayThis(attacker.Name + " missed");
 			}
 	}
@@ -527,7 +545,7 @@ class GameManager extends Sprite
 		{
 			if (dead == enemy)
 			{
-				trace(dead.Name + " was killed!");
+				//trace(dead.Name + " was killed!");
 				reportFeed.sayThis(dead.Name + " was killed!");
 				var remains = new MapTileDisplayItems(dead._x, dead._y, MapTileDisplayItems.ITEM_GOLDCOINS, 100);
 				remains.draw(camerax, cameray);
@@ -621,10 +639,11 @@ class GameManager extends Sprite
 		if (enemyList.length < 4)
 		{	
 			var choicePick = Math.random();
-			var rangeSet:Bool = choicePick < 0.5?false:true;
+			//var rangeSet:Bool = choicePick < 0.5?false:true;
 			var randomPoint = arrdungeonStages[currentStage].getRandomOpenSpace();
 			var schmoe = new Enemy(randomPoint.x, randomPoint.y, mainMech, this);
-			schmoe.isRangeUnit = rangeSet;
+			schmoe.isRangeUnit = false;
+			schmoe.levelUpTo(mainMech.Level + 1);
 			schmoe.draw();
 			enemyList.push(schmoe);
 		}
@@ -640,5 +659,14 @@ class GameManager extends Sprite
 			itemList.push(gem);
 			
 		}
+		mainMech.reDraw();
+	}
+	
+	public function spawnGoldStatue():Void
+	{
+		var randomPoint = arrdungeonStages[currentStage].getRandomOpenSpace();
+		var goldStat = new MapTileDisplayItems(randomPoint.x, randomPoint.y, MapTileDisplayItems.ITEM_GOLDSTATUE, 50000);
+		goldStat.draw(camerax, cameray);
+		itemList.push(goldStat);
 	}
 }

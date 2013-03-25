@@ -21,7 +21,7 @@ class MinionEnemy extends Enemy
 				//scan for target here
 				if (scanForTarget())
 				{
-					trace("main target sighted");
+					//trace("main target sighted");
 					currentTarget = priorityTarget;
 				}
 				if (currentTarget != null) //if target found then switch to engage mode

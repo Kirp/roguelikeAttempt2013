@@ -67,6 +67,7 @@ class Hero
 	public function reDraw():Void
 	{
 		Lib.stage.removeChild(face);
+	
 		draw();
 	}
 	
@@ -290,12 +291,18 @@ class Hero
 		if (cash >= requirementForLevelUp)
 		{
 			this.Level++;
-			requirementForLevelUp *= 2;
+			requirementForLevelUp+=1000;
 			MaxHP += 10;
 			MaxEN += 10;
 			Accuracy += 4;
 			DamageCapacity = Std.int(Level * 0.2);
+			DamageCapacity = DamageCapacity < 1?1:DamageCapacity;
 			master.reportFeed.sayThis("You reached level "+this.Level);
 		}
+	}
+	
+	public function healUp(amount:Int):Void
+	{
+		if (HitPoints < MaxHP) HitPoints += amount;
 	}
 }
